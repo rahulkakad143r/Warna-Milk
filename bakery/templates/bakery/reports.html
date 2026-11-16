@@ -1,0 +1,178 @@
+{% extends "bakery/base.html" %}
+{% load bakery_tags %}
+{% block title %}Reports{% endblock %}
+{% block nav_reports %}active{% endblock %}
+{% block heading %}Reports &amp; Analytics{% endblock %}
+{% block subheading %}Date-wise sales plus customer, product, stock and bill reports{% endblock %}
+
+{% block content %}
+{% include "bakery/_report_tabs.html" with active="sales" %}
+
+<section class="card">
+  <form method="get" action="{% url 'bakery:reports' %}" class="filter-row report-filter" id="report-filter">
+    <select class="input" name="period" id="report-period" aria-label="Report period">
+      <option value="daily" {% if period == "daily" %}selected{% endif %}>Daily</option>
+      <option value="monthly" {% if period == "monthly" %}selected{% endif %}>Monthly</option>
+      <option value="yearly" {% if period == "yearly" %}selected{% endif %}>Yearly</option>
+    </select>
+    <input class="input" type="date" name="date" id="report-date" value="{{ date_value }}" aria-label="Report date">
+    <input class="input" type="month" name="month" id="report-month" value="{{ month_value }}" aria-label="Report month">
+    <input class="input" type="number" name="year" id="report-year" min="2000" max="2100" value="{{ year_value }}" aria-label="Report year">
+    <button class="btn btn-primary" type="submit">Apply</button>
+    <span class="grow"></span>
+    <a class="btn btn-ghost" href="{% url 'bakery:reports_csv' %}?{{ request.GET.urlencode }}">CSV</a>
+    <a class="btn btn-ghost" href="{% url 'bakery:reports_pdf' %}?{{ request.GET.urlencode }}">PDF</a>
+  </form>
+  <p class="summary-note">Showing <strong>{{ label }}</strong> ({{ start|date:"d M Y" }} to {{ end|date:"d M Y" }}).</p>
+</section>
+
+<div class="stat-grid">
+  <div class="stat">
+    <span class="stat-ico">&#128176;</span>
+    <span class="stat-label">Revenue</span>
+    <span class="stat-value">&#8377;{{ sales.net|floatformat:2 }}</span>
+    <span class="muted-text">{{ sales.bills }} bill{{ sales.bills|pluralize }}</span>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#129534;</span>
+    <span class="stat-label">Sales Before Tax</span>
+    <span class="stat-value">&#8377;{{ sales.gross|floatformat:2 }}</span>
+    <span class="muted-text">Discount &#8377;{{ sales.discount|floatformat:2 }}</span>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#128181;</span>
+    <span class="stat-label">GST Collected</span>
+    <span class="stat-value">&#8377;{{ sales.tax|floatformat:2 }}</span>
+    <span class="muted-text">Product-wise GST</span>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#128230;</span>
+    <span class="stat-label">Purchases</span>
+    <span class="stat-value">&#8377;{{ purchases.net|floatformat:2 }}</span>
+    <span class="muted-text">{{ purchases.purchases }} purchase{{ purchases.purchases|pluralize }} &middot; GST &#8377;{{ purchases.tax|floatformat:2 }}</span>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#128200;</span>
+    <span class="stat-label">Stock Value</span>
+    <span class="stat-value">&#8377;{{ stock_value|floatformat:2 }}</span>
+    <span class="muted-text">{{ low_stock|length }} low-stock item{{ low_stock|length|pluralize }}</span>
+  </div>
+</div>
+
+<div class="split">
+  <section class="card">
+    <div class="card-head"><h2>Sales &mdash; {{ label }}</h2><span class="muted-text">Net revenue</span></div>
+    <div class="chart-wrap"><canvas id="sales-chart" height="260" role="img" aria-label="Sales for the selected period"></canvas></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Purchases &mdash; {{ label }}</h2><span class="muted-text">Received stock</span></div>
+    <div class="chart-wrap"><canvas id="purchase-chart" height="260" role="img" aria-label="Purchases for the selected period"></canvas></div>
+  </section>
+</div>
+
+<div class="split">
+  <section class="card">
+    <div class="card-head"><h2>Period Breakdown</h2><span class="muted-text">{{ period|title }}</span></div>
+    <div class="table-scroll">
+      <table class="table">
+        <thead><tr><th>Period</th><th class="right">Bills</th><th class="right">Sales</th><th class="right">GST</th><th class="right">Revenue</th><th class="right">Purchases</th></tr></thead>
+        <tbody>
+          {% for r in rows %}
+          <tr>
+            <td>{{ r.label }}</td>
+            <td class="right">{{ r.bills }}</td>
+            <td class="right">&#8377;{{ r.sales|floatformat:2 }}</td>
+            <td class="right">&#8377;{{ r.tax|floatformat:2 }}</td>
+            <td class="right">&#8377;{{ r.revenue|floatformat:2 }}</td>
+            <td class="right">&#8377;{{ r.purchase_total|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="empty">No activity for this period.</td></tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr><th class="right">Total</th><th class="right">{{ sales.bills }}</th><th class="right">&#8377;{{ sales.gross|floatformat:2 }}</th><th class="right">&#8377;{{ sales.tax|floatformat:2 }}</th><th class="right">&#8377;{{ sales.net|floatformat:2 }}</th><th class="right">&#8377;{{ purchases.net|floatformat:2 }}</th></tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Payment Split</h2></div>
+    <div class="chart-wrap square"><canvas id="pay-chart" height="220" role="img" aria-label="Payment method split"></canvas></div>
+    <ul class="legend-list">
+      {% for r in payment_rows %}
+      <li><span class="dot dot-{{ forloop.counter }}"></span>{{ r.method }}<span class="muted-text">&#8377;{{ r.amount|floatformat:2 }}</span></li>
+      {% empty %}<li class="empty">No payments recorded.</li>{% endfor %}
+    </ul>
+  </section>
+</div>
+
+<div class="split">
+  <section class="card">
+    <div class="card-head"><h2>Product-wise Sales</h2></div>
+    <div class="table-scroll">
+      <table class="table">
+        <thead><tr><th>Product</th><th class="right">Unit Price</th><th class="right">Units Sold</th><th class="right">GST</th><th class="right">Revenue</th></tr></thead>
+        <tbody>
+          {% for r in product_rows %}
+          <tr><td>{{ r.product_name }}</td><td class="right">&#8377;{{ r.unit_price|floatformat:2 }}</td><td class="right">{{ r.units }}</td><td class="right">&#8377;{{ r.tax|floatformat:2 }}</td><td class="right">&#8377;{{ r.revenue|floatformat:2 }}</td></tr>
+          {% empty %}
+          <tr><td colspan="5" class="empty">No product sales yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Best Sellers</h2></div>
+    <ul class="rank-list">
+      {% for r in best_sellers %}
+      <li><span class="rank">{{ forloop.counter }}</span>{{ r.product_name }}<span class="muted-text">{{ r.units }} units &middot; &#8377;{{ r.revenue|floatformat:2 }}</span></li>
+      {% empty %}<li class="empty">No sales yet.</li>{% endfor %}
+    </ul>
+
+    <h3 class="mt">Stock Report</h3>
+    {% if low_stock %}
+    <ul class="meter-list">
+      {% for inv in low_stock %}
+      <li>
+        <div class="meter-top"><span>{{ inv.product.name }}</span><span class="pill {% if inv.is_out %}danger{% else %}warn{% endif %}">{{ inv.stock_status_label }}</span></div>
+        <div class="meter"><i class="{% if inv.is_out %}danger{% else %}warn{% endif %}" style="width:{{ inv.quantity|stock_percent:60 }}%"></i></div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="empty">All items are well stocked.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ rows|json_script:"report-rows" }}
+{{ payment_rows|json_script:"pay-data" }}
+<script>
+  window.GK_CHARTS = {
+    sales: JSON.parse(document.getElementById("report-rows").textContent),
+    payment: JSON.parse(document.getElementById("pay-data").textContent)
+  };
+  (function () {
+    var period = document.getElementById("report-period");
+    var date = document.getElementById("report-date");
+    var month = document.getElementById("report-month");
+    var year = document.getElementById("report-year");
+    function sync() {
+      if (!period) return;
+      var value = period.value;
+      if (date) date.hidden = value !== "daily";
+      if (month) month.hidden = value !== "monthly";
+      if (year) year.hidden = value !== "yearly";
+    }
+    if (period) period.addEventListener("change", sync);
+    sync();
+  })();
+</script>
+{% endblock %}

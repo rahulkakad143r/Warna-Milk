@@ -1,0 +1,109 @@
+{% extends "bakery/base.html" %}
+{% load bakery_tags %}
+{% block title %}{{ title }}{% endblock %}
+{% block nav_products %}active{% endblock %}
+{% block nav_inventory %}active{% endblock %}
+{% block heading %}{{ title }}{% endblock %}
+{% block subheading %}Price, category, unit, tax, discount and expiry{% endblock %}
+
+{% block content %}
+<section class="card narrow">
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.as_p }}
+    <div class="img-preview" id="img-preview" {% if not product or not product.image %}hidden{% endif %}>
+      <img id="img-preview-img" alt="" src="{% if product and product.image %}{{ product.image.url }}{% endif %}"{% if not product or not product.image %} hidden{% endif %}>
+      <span class="none" id="img-preview-none"{% if product and product.image %} hidden{% endif %}>No photo uploaded — a themed tile is used on every page.</span>
+    </div>
+    <p class="summary-note">
+      <em>Unit</em> comes from the fixed list (kg, g, litre, piece…) so it reads the same
+      everywhere. <em>Tax %</em> fills itself from the category you pick — override it only
+      for a product that is taxed differently. <em>Expiry</em> is optional; leave it blank
+      for items that do not go off.
+    </p>
+    <p class="summary-note">Set <em>Discount %</em> to apply an automatic product discount at checkout; leave it at 0 for no discount.</p>
+    <p class="summary-note">Leave <em>Opening stock</em> blank to keep the current quantity. Upload a photo, or paste an Image URL; without either the card shows a themed tile.</p>
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Save Product</button>
+      <a class="btn btn-ghost" href="{% url 'bakery:products' %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var fileInput = document.querySelector('[name="image"]');
+    var urlInput = document.querySelector('[name="image_url"]');
+    var box = document.getElementById("img-preview");
+    var img = document.getElementById("img-preview-img");
+    var note = document.getElementById("img-preview-none");
+    if (box && img) {
+      var objectUrl = null;
+
+      function show(src) {
+        if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+        box.hidden = false;
+        if (src) {
+          img.src = src;
+          img.hidden = false;
+          if (note) note.hidden = true;
+        } else {
+          img.removeAttribute("src");
+          img.hidden = true;
+          if (note) note.hidden = false;
+        }
+      }
+
+      if (fileInput) {
+        fileInput.addEventListener("change", function () {
+          var file = fileInput.files && fileInput.files[0];
+          if (!file) return show(null);
+          if (objectUrl) URL.revokeObjectURL(objectUrl);
+          objectUrl = URL.createObjectURL(file);
+          box.hidden = false;
+          img.src = objectUrl;
+          img.hidden = false;
+          if (note) note.hidden = true;
+          if (urlInput) urlInput.value = "";
+        });
+      }
+
+      if (urlInput) {
+        urlInput.addEventListener("input", function () {
+          if (fileInput && fileInput.files && fileInput.files[0]) return;
+          show(urlInput.value.trim() || null);
+        });
+      }
+    }
+
+    // Tax follows the category. The rates ride along on the select as JSON so
+    // this stays a static page with no extra request.
+    var category = document.querySelector('[name="category"]');
+    var tax = document.querySelector('[name="tax_rate"]');
+    if (category && tax) {
+      var rates = {};
+      try { rates = JSON.parse(category.dataset.taxMap || "{}"); } catch (e) { rates = {}; }
+
+      function applyCategoryRate() {
+        if (tax.value === "" || tax.dataset.touched !== "1") {
+          if (rates[category.value] !== undefined) tax.value = rates[category.value];
+        }
+      }
+
+      category.addEventListener("change", function () {
+        if (rates[category.value] !== undefined) {
+          tax.value = rates[category.value];
+          tax.dataset.touched = "0";
+        }
+      });
+
+      // A hand-typed rate wins until the category is picked again.
+      tax.addEventListener("input", function () { tax.dataset.touched = "1"; });
+      applyCategoryRate();
+    }
+  })();
+</script>
+{% endblock %}

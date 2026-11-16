@@ -1,0 +1,123 @@
+{% extends "bakery/base.html" %}
+{% load bakery_tags %}
+{% block title %}Products{% endblock %}
+{% block nav_products %}active{% endblock %}
+{% block heading %}Product Master{% endblock %}
+{% block subheading %}Add, update and categorise Warana Milk products{% endblock %}
+{% block head_actions %}
+<a class="btn btn-primary" href="{% url 'bakery:product_create' %}">+ Add Product</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <form method="get" class="filter-row">
+    <input class="input" name="q" value="{{ q }}" placeholder="Search product">
+    <select class="input" name="category">
+      <option value="">All categories</option>
+      {% for c in categories %}<option value="{{ c.pk }}" {% if selected_category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }} ({{ c.tax_rate|floatformat:0 }}%)</option>{% endfor %}
+    </select>
+    <select class="input" name="expiry">
+      <option value="">Any expiry</option>
+      <option value="soon" {% if selected_expiry == "soon" %}selected{% endif %}>Expiring within 7 days</option>
+      <option value="expired" {% if selected_expiry == "expired" %}selected{% endif %}>Already expired</option>
+      <option value="dated" {% if selected_expiry == "dated" %}selected{% endif %}>Has an expiry date</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Filter</button>
+    <a class="btn btn-ghost" href="{% url 'bakery:products' %}">Reset</a>
+  </form>
+</section>
+
+<section class="card">
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th>ID</th><th>Product Name</th><th>Category</th><th class="right">Rate / Unit</th><th class="right">Tax</th><th>Stock</th><th>Expiry</th><th>Status</th><th class="right">Actions</th></tr></thead>
+      <tbody>
+      {% for p in products %}
+      <tr class="{% if not p.is_active %}is-muted{% endif %}">
+        <td class="nowrap"><span class="pill">#{{ p.pk }}</span></td>
+        <td>
+          <div class="name-cell">
+            {% include "bakery/_product_art.html" with product=p size="sm" %}
+            <span class="nm">
+              <strong>{{ p.name }}</strong>
+              <small class="muted-text">{{ p.description|truncatechars:44|default:"&mdash;" }}</small>
+            </span>
+          </div>
+        </td>
+        <td>{{ p.category.name }}</td>
+        <td class="right nowrap">&#8377;{{ p.price|floatformat:2 }} <small class="muted-text">/ {{ p.get_unit_display }}</small></td>
+        <td class="right">{{ p.tax_rate|floatformat:2 }}%</td>
+        <td class="stock-cell">
+          <div class="meter"><i class="{% if p.is_out_of_stock %}danger{% elif p.is_low_stock %}warn{% else %}ok{% endif %}" style="width:{{ p.stock|stock_percent }}%"></i></div>
+          <small class="muted-text">{{ p.stock }} in stock</small>
+          {% if p.is_low_stock %}<small class="stock-alert">{{ p.low_stock_message }}</small>{% endif %}
+        </td>
+        <td>
+          {% if p.expiry_state == "none" %}
+            <span class="muted-text">&mdash;</span>
+          {% else %}
+            <span class="pill {% if p.expiry_state == "expired" %}danger{% elif p.expiry_state == "soon" %}warn{% else %}ok{% endif %}">{{ p.expiry_date|date:"d M Y" }}</span>
+            <br><small class="muted-text">{{ p.expiry_note }}</small>
+          {% endif %}
+        </td>
+        <td>
+          {% if not p.is_active %}<span class="pill">INACTIVE</span>
+          {% else %}<span class="pill {% if p.is_out_of_stock %}danger{% elif p.is_low_stock %}warn{% else %}ok{% endif %}">{{ p.stock_status_label|upper }}</span>{% endif %}
+        </td>
+        <td class="right nowrap">
+          <a class="link" href="{% url 'bakery:product_edit' p.pk %}">Edit</a>
+          <form method="post" action="{% url 'bakery:product_delete' p.pk %}" onsubmit="return confirm('Delete {{ p.name|escapejs }}?')">
+            {% csrf_token %}<button class="link danger-text" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="9" class="empty">No products found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="summary-note">
+    Every product can carry its own GST rate; a blank rate follows the category.
+    Low-stock alerts trigger at {{ low_stock_threshold }} units or fewer.
+    Expiry is optional: leave it blank for items that do not go off.
+  </p>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Category Overview</h2>
+    <span class="muted-text">One-line description for every category</span>
+  </div>
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th>Category</th><th>One-line Description</th><th class="right">Products</th><th class="right">GST</th></tr></thead>
+      <tbody>
+        {% for c in category_rows %}
+        <tr>
+          <td><strong>{{ c.name }}</strong></td>
+          <td>{{ c.description|default:"&mdash;" }}</td>
+          <td class="right">{{ c.product_count }}</td>
+          <td class="right">{{ c.tax_rate|floatformat:0 }}%</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="empty">No categories yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <details>
+    <summary class="summary">Add a category</summary>
+    <form method="post" action="{% url 'bakery:category_create' %}" class="filter-row mt">
+      {% csrf_token %}
+      {{ category_form.non_field_errors }}
+      {{ category_form.as_p }}
+      <button class="btn btn-primary" type="submit">Save category</button>
+    </form>
+    <p class="summary-note">The tax rate entered here becomes the default for every product in this category.</p>
+  </details>
+</section>
+{% endblock %}

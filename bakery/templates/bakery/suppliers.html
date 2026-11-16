@@ -1,0 +1,75 @@
+{% extends "bakery/base.html" %}
+{% block title %}Suppliers{% endblock %}
+{% block nav_purchases %}active{% endblock %}
+{% block nav_suppliers %}active{% endblock %}
+{% block heading %}Suppliers{% endblock %}
+{% block subheading %}Vendors you buy stock from{% endblock %}
+{% block head_actions %}
+<a class="btn btn-primary" href="{% url 'bakery:supplier_create' %}">+ Add Supplier</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th>Supplier</th><th>Contact Person</th><th>Phone</th><th>GST No.</th><th class="right">Purchases</th><th class="right">Spend</th><th>Status</th><th class="right">Actions</th></tr></thead>
+      <tbody>
+      {% for s in suppliers %}
+      <tr class="{% if not s.is_active %}is-muted{% endif %}">
+        <td>
+          <strong>{{ s.name }}</strong>
+          {% if s.name|lower == "warana milk" %}<span class="pill ok">DEFAULT</span>{% endif %}
+          {% if s.address %}<small class="muted-text" style="display:block">{{ s.address|truncatechars:40 }}</small>{% endif %}
+        </td>
+        <td>{{ s.contact_person|default:"&mdash;" }}</td>
+        <td class="nowrap">{{ s.phone }}</td>
+        <td>{{ s.gst_number|default:"&mdash;" }}</td>
+        <td class="right">
+          {% if s.purchase_count %}
+            <a class="link" href="{% url 'bakery:purchases' %}?supplier={{ s.pk }}">{{ s.purchase_count }}</a>
+          {% else %}0{% endif %}
+        </td>
+        <td class="right">&#8377;{{ s.spend|floatformat:2 }}</td>
+        <td>
+          {% if s.is_active %}<span class="pill ok">ACTIVE</span>
+          {% else %}<span class="pill">INACTIVE</span>{% endif %}
+        </td>
+        <td class="right nowrap">
+          <a class="link" href="{% url 'bakery:supplier_edit' s.pk %}">Edit</a>
+          <form method="post" action="{% url 'bakery:supplier_delete' s.pk %}" onsubmit="return confirm('Delete supplier {{ s.name|escapejs }}?')">
+            {% csrf_token %}<button class="link danger-text" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="empty">No suppliers yet. Add one to start recording purchases.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="summary-note">
+    <strong>Warana Milk</strong> is the default purchase supplier. Phone numbers must be
+    exactly 10 digits. A supplier with recorded purchases is deactivated rather than
+    deleted, so the purchase history stays intact.
+    {% if show_all %}
+      <a href="{% url 'bakery:suppliers' %}">Show active suppliers only</a>
+    {% else %}
+      <a href="{% url 'bakery:suppliers' %}?all=1">Show inactive suppliers too</a>
+    {% endif %}
+  </p>
+</section>
+
+<section class="card">
+  <details>
+    <summary class="summary">Quick add a supplier</summary>
+    <form method="post" action="{% url 'bakery:suppliers' %}" class="mt">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {{ form.as_p }}
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Save supplier</button>
+      </div>
+    </form>
+  </details>
+</section>
+{% endblock %}

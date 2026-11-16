@@ -1,0 +1,71 @@
+{% extends "bakery/base.html" %}
+{% block title %}Product Report{% endblock %}
+{% block nav_reports %}active{% endblock %}
+{% block heading %}Product Report{% endblock %}
+{% block subheading %}Product name, ID, stock, rate / unit and sales performance{% endblock %}
+{% block head_actions %}
+<a class="btn btn-primary" href="{% url 'bakery:report_products_pdf' %}?{{ request.GET.urlencode }}">Download PDF</a>
+<a class="btn btn-ghost" href="{% url 'bakery:report_products_csv' %}?{{ request.GET.urlencode }}">Download CSV</a>
+{% endblock %}
+
+{% block content %}
+{% include "bakery/_report_tabs.html" with active="products" %}
+
+<div class="stat-grid">
+  <div class="stat">
+    <span class="stat-ico">&#127978;</span>
+    <span class="stat-label">Products</span>
+    <span class="stat-value">{{ total_products }}</span>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#128230;</span>
+    <span class="stat-label">Units Sold</span>
+    <span class="stat-value">{{ total_units }}</span>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#128176;</span>
+    <span class="stat-label">Product Revenue</span>
+    <span class="stat-value">&#8377;{{ total_revenue|floatformat:2 }}</span>
+  </div>
+</div>
+
+<section class="card">
+  <form method="get" class="filter-row">
+    <input class="input" name="q" value="{{ q }}" placeholder="Search product or category">
+    <select class="input" name="category">
+      <option value="">All categories</option>
+      {% for c in categories %}<option value="{{ c.pk }}" {% if selected_category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-primary" type="submit">Filter</button>
+    <a class="btn btn-ghost" href="{% url 'bakery:report_products' %}">Reset</a>
+  </form>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Product Report</h2>
+    <span class="muted-text">Dairy, Cake and every other category</span>
+  </div>
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th>ID</th><th>Product Name</th><th>Category</th><th class="right">Stock</th><th class="right">Rate / Unit</th><th class="right">GST</th><th class="right">Units Sold</th><th class="right">Revenue</th></tr></thead>
+      <tbody>
+      {% for p in rows %}
+      <tr>
+        <td class="nowrap"><span class="pill">#{{ p.pk }}</span></td>
+        <td><strong>{{ p.name }}</strong></td>
+        <td>{{ p.category.name }}</td>
+        <td class="right">{{ p.stock }}</td>
+        <td class="right nowrap">&#8377;{{ p.price|floatformat:2 }} <small class="muted-text">/ {{ p.get_unit_display }}</small></td>
+        <td class="right">{{ p.tax_rate|floatformat:2 }}%</td>
+        <td class="right">{{ p.units_sold }}</td>
+        <td class="right">&#8377;{{ p.revenue|floatformat:2 }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="empty">No products found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

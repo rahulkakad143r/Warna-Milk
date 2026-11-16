@@ -1,0 +1,637 @@
+/* Warana Milk — brown & cream bakery theme */
+
+:root {
+  --espresso:  #2F2018;
+  --cocoa:     #4A3225;
+  --brown:     #6B472C;
+  --caramel:   #A9713C;
+  --gold:      #C99A54;
+
+  --cream:     #F6F0E4;
+  --cream-2:   #EFE6D5;
+  --surface:   #FFFDF8;
+  --ink:       #2B1F17;
+  --muted:     #8B7A68;
+  --line:      #E4D8C4;
+
+  --ok:        #4C7A40;
+  --warn:      #B4801F;
+  --danger:    #B03A2E;
+  --green-bg:  #E7F0E2;
+  --warn-bg:   #F8EBD2;
+  --red-bg:    #F8E0DC;
+
+  --radius:    12px;
+  --radius-sm: 8px;
+  --shadow:    0 1px 2px rgba(60, 40, 25, .07), 0 10px 26px rgba(60, 40, 25, .07);
+  --sidebar-w: 252px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font: 15px/1.6 "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--brown); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3 { margin: 0 0 .4rem; line-height: 1.25; }
+h2 { font-size: 1.05rem; }
+h3 { font-size: .95rem; }
+.right { text-align: right; }
+.mt { margin-top: 1.5rem; }
+.mt-s { margin-top: .6rem; }
+.grow { flex: 1; }
+.nowrap { white-space: nowrap; }
+.muted-text { color: var(--muted); font-size: .84em; }
+.is-muted { opacity: .55; }
+.empty { color: var(--muted); text-align: center; padding: 1.4rem 0; }
+.summary { cursor: pointer; font-weight: 600; }
+
+/* ============================ sidebar ============================ */
+
+/* The sidebar is a fixed column that has to fit without scrolling, so its
+   padding, gaps and type scale with viewport height: a 1366x768 or
+   1280x720 laptop would otherwise clip the logout button. */
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--sidebar-w);
+  background: linear-gradient(180deg, var(--espresso) 0%, var(--cocoa) 100%);
+  color: var(--cream);
+  padding: clamp(.55rem, 1.5vh, 1.15rem) .9rem clamp(.5rem, 1.2vh, 1rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(.35rem, 1vh, .9rem);
+  overflow-y: auto;
+  z-index: 40;
+}
+
+/* The real logo is a 700x350 (2:1) transparent PNG in brand brown #7E3D09.
+   On the cream login header and white receipt it reads at ~8:1, but
+   brown-on-espresso is only 1.4:1, so the dark sidebar sits it on a cream
+   chip rather than recolouring the artwork. */
+.brand {
+  display: flex; align-items: center; justify-content: center; gap: .65rem; color: var(--cream);
+  padding: clamp(.3rem, .85vh, .5rem) .6rem;
+  margin: 0 0 clamp(.15rem, .5vh, .3rem);
+  background: var(--cream); border-radius: var(--radius-sm);
+}
+.brand:hover { text-decoration: none; }
+.brand-mark {
+  flex: none; display: grid; place-items: center;
+  width: 40px; height: 40px; border-radius: 11px;
+  background: linear-gradient(140deg, var(--caramel), var(--gold));
+  color: #fff; font-weight: 700; letter-spacing: .5px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .28);
+}
+    .brand-mark.big { width: 58px; height: 58px; font-size: 1.2rem; border-radius: 14px; margin-bottom: 1rem; }
+    .brand-text strong { display: block; font-size: 1.02rem; }
+    .brand-text em { display: block; font-style: normal; font-size: .74rem; color: var(--gold); letter-spacing: .5px; }
+
+    .brand-logo {
+      display: block; width: 100%; max-width: 152px; height: auto;
+      max-height: clamp(42px, 7vh, 66px);
+      object-fit: contain; object-position: center;
+    }
+    .brand-logo.big { width: 280px; max-height: 140px; margin-bottom: 1.1rem; }
+    .brand-logo.print { width: 160px; max-height: 80px; }
+
+.nav { display: flex; flex-direction: column; gap: .1rem; }
+.nav-label {
+  margin: clamp(.3rem, .85vh, .8rem) 0 clamp(.12rem, .38vh, .3rem);
+  padding: 0 .55rem;
+  font-size: .68rem; text-transform: uppercase; letter-spacing: 1px;
+  color: rgba(246, 240, 228, .5); font-weight: 700;
+}
+.nav a {
+  display: flex; align-items: center; gap: .6rem;
+  padding: clamp(.3rem, .95vh, .5rem) .6rem;
+  border-radius: var(--radius-sm);
+  color: rgba(246, 240, 228, .88); font-size: .92rem; font-weight: 500;
+}
+.nav a:hover { background: rgba(255, 255, 255, .09); color: #fff; text-decoration: none; }
+.nav a.active { background: linear-gradient(135deg, var(--caramel), var(--gold)); color: #fff; box-shadow: 0 3px 12px rgba(169, 113, 60, .45); }
+      .nav-ico { width: 1.1rem; text-align: center; font-size: .95rem; opacity: .95; }
+      /* the full wordmark is 2:1, so it rides on a cream chip to stay legible
+         on both the espresso sidebar and the gold active pill */
+      .nav-ico-logo {
+        flex: none; height: clamp(14px, 2.1vh, 19px); width: auto;
+        object-fit: contain; object-position: center;
+        background: var(--cream); border-radius: 3px; padding: 2px 3px;
+      }
+
+.badge {
+  margin-left: auto; min-width: 22px; padding: .05rem .4rem; border-radius: 999px;
+  background: var(--gold); color: var(--espresso);
+  font-size: .74rem; font-weight: 700; text-align: center;
+}
+.badge.is-zero { background: rgba(255, 255, 255, .16); color: rgba(246, 240, 228, .65); }
+
+.side-cart {
+  margin-top: auto;
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: var(--radius);
+  padding: clamp(.45rem, 1.25vh, .8rem) .9rem;
+}
+.side-cart .nav-label { margin: 0 0 clamp(.25rem, .7vh, .45rem); padding: 0; }
+.side-cart-line { display: flex; justify-content: space-between; margin: .2rem 0; font-size: .88rem; }
+.side-cart-line strong { color: var(--gold); }
+
+.side-user {
+  display: flex; align-items: center; gap: .6rem;
+  padding: clamp(.35rem, 1vh, .65rem) .35rem 0;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+}
+.avatar {
+  flex: none; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--caramel); color: #fff; font-weight: 700;
+}
+    .side-user .who { flex: 1; line-height: 1.25; min-width: 0; }
+    /* the logout button must be a POST form (Django 5 rejects GET logout),
+       so strip the form's default block margins inside the flex row */
+    .logout-form { flex: none; margin: 0; }
+    .logout-form .btn { margin: 0; }
+.side-user .who strong { display: block; font-size: .87rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.side-user .who em { font-style: normal; font-size: .74rem; color: var(--gold); }
+.side-user .btn-ghost { color: rgba(246, 240, 228, .8); border-color: rgba(255, 255, 255, .2); padding: .3rem .55rem; font-size: .78rem; }
+.side-user .btn-ghost:hover { background: rgba(255, 255, 255, .12); }
+
+.nav-toggle { display: none; }
+.scrim { display: none; }
+
+/* ============================ main ============================ */
+
+.main {
+  margin-left: var(--sidebar-w);
+  padding: 1.6rem 2rem 2.5rem;
+  max-width: 1320px;
+}
+
+/* the decorative band the owner asked to see on every signed-in page; it is
+   a wide 10:1 ornament, so the intrinsic ratio is kept and never cropped */
+.page-band {
+  display: block; width: 100%; height: auto;
+  margin: 0 0 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: var(--surface);
+}
+
+.page-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+}
+.page-title { font-size: 1.6rem; margin: 0; color: var(--espresso); }
+      .page-sub { margin: .15rem 0 0; color: var(--muted); font-size: .9rem; }
+      .page-clock {
+        display: flex; align-items: center; gap: .4rem;
+        margin: .5rem 0 0; padding: .2rem .55rem;
+        width: max-content; border: 1px solid var(--line);
+        border-radius: 999px; background: var(--surface);
+        color: var(--muted); font-size: .78rem; line-height: 1.5;
+        font-variant-numeric: tabular-nums;
+      }
+      .page-clock-ico { font-size: .8rem; opacity: .8; }
+      .page-clock strong { color: var(--espresso); font-weight: 600; letter-spacing: .3px; }
+      .page-head-actions { display: flex; gap: .55rem; flex-wrap: wrap; }
+
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.card.narrow { max-width: 600px; }
+.card-head { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; margin-bottom: .9rem; }
+.card-head h2 { margin: 0; }
+
+.split { display: grid; grid-template-columns: 1.55fr 1fr; gap: 1.25rem; align-items: start; }
+.split > .card { margin-bottom: 0; }
+.split + .split, .split + .card { margin-top: 1.25rem; }
+
+/* ============================ stat cards ============================ */
+
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.stat-grid.two { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-bottom: 1.25rem; }
+.stat {
+  position: relative;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: .1rem;
+  overflow: hidden;
+}
+.stat::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: linear-gradient(180deg, var(--caramel), var(--gold)); }
+.stat.is-alert::before { background: linear-gradient(180deg, var(--danger), #D9705F); }
+.stat-ico { position: absolute; top: .85rem; right: .95rem; font-size: 1.15rem; opacity: .28; }
+.stat-label { font-size: .74rem; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 600; }
+.stat-value { font-size: 1.65rem; font-weight: 700; color: var(--espresso); line-height: 1.2; }
+.stat a, .stat .muted-text { font-size: .82rem; }
+
+/* ============================ tables ============================ */
+
+.table-scroll { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.table th, .table td { padding: .6rem .5rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.table thead th { font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 700; border-bottom-width: 2px; white-space: nowrap; }
+.table tfoot th { border-bottom: none; padding-top: .75rem; }
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr:hover { background: rgba(239, 230, 213, .45); }
+.table .grand th { font-size: 1.08rem; color: var(--espresso); }
+.stock-cell { min-width: 150px; }
+.link { background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: var(--brown); font-weight: 600; }
+.link:hover { text-decoration: underline; }
+.danger-text { color: var(--danger); }
+
+.chip {
+  display: inline-block; padding: .12rem .5rem; border-radius: 6px;
+  background: var(--cream-2); color: var(--cocoa); font-size: .76rem; font-weight: 600;
+}
+
+/* ============================ pills, meters, ranks ============================ */
+
+.pill { display: inline-block; padding: .14rem .55rem; border-radius: 999px; font-size: .71rem; font-weight: 700; background: var(--cream-2); color: var(--muted); white-space: nowrap; }
+.pill.ok { background: var(--green-bg); color: var(--ok); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.danger { background: var(--red-bg); color: var(--danger); }
+
+.meter { height: 7px; border-radius: 999px; background: var(--cream-2); overflow: hidden; margin: .3rem 0 .2rem; }
+.meter i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--ok), #6E9C61); }
+.meter i.warn { background: linear-gradient(90deg, var(--warn), #D0A03F); }
+.meter i.danger { background: linear-gradient(90deg, var(--danger), #CE6455); }
+
+.meter-list { list-style: none; margin: 0; padding: 0; }
+.meter-list li { padding: .5rem 0; border-bottom: 1px dashed var(--line); }
+.meter-list li:last-child { border-bottom: none; }
+.meter-top { display: flex; justify-content: space-between; align-items: center; gap: .6rem; font-size: .9rem; }
+
+.rank-list { list-style: none; margin: 0; padding: 0; counter-reset: rank; }
+.rank-list li { display: flex; align-items: center; gap: .6rem; padding: .4rem 0; border-bottom: 1px dashed var(--line); font-size: .9rem; }
+.rank-list li:last-child { border-bottom: none; }
+.rank {
+  flex: none; display: grid; place-items: center;
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--cream-2); color: var(--brown); font-size: .76rem; font-weight: 700;
+}
+.rank-list .muted-text { margin-left: auto; }
+
+.legend-list { list-style: none; margin: .5rem 0 0; padding: 0; }
+.legend-list li { display: flex; align-items: center; gap: .5rem; padding: .25rem 0; font-size: .88rem; }
+.legend-list .muted-text { margin-left: auto; }
+.dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.dot-1 { background: var(--caramel); }
+.dot-2 { background: var(--gold); }
+.dot-3 { background: var(--brown); }
+.legend { display: flex; align-items: center; gap: .45rem; font-size: .8rem; color: var(--muted); margin-top: .5rem; }
+.legend .swatch { width: 12px; height: 12px; border-radius: 3px; background: linear-gradient(180deg, var(--gold), var(--caramel)); }
+
+.chart-wrap { position: relative; width: 100%; }
+.chart-wrap.square { max-width: 240px; margin: 0 auto; }
+.chart-wrap canvas { width: 100%; }
+
+/* ============================ forms & buttons ============================ */
+
+.input {
+  width: 100%; padding: .5rem .7rem; border: 1px solid var(--line);
+  border-radius: var(--radius-sm); background: #fff; color: var(--ink);
+  font: inherit; box-shadow: inset 0 1px 2px rgba(60, 40, 25, .04);
+}
+.input:focus { outline: 2px solid var(--caramel); outline-offset: -1px; border-color: var(--caramel); }
+.input.tiny { width: 74px; padding: .3rem .4rem; }
+label { display: block; font-size: .8rem; font-weight: 700; margin: .75rem 0 .25rem; color: var(--cocoa); }
+form p { margin: 0 0 .4rem; }
+.errorlist { color: var(--danger); font-size: .8rem; list-style: none; margin: .2rem 0; padding: 0; }
+.helptext { color: var(--muted); font-size: .78rem; display: block; }
+
+.btn {
+  display: inline-block; padding: .5rem .95rem; border-radius: var(--radius-sm);
+  border: 1px solid var(--line); background: #fff; color: var(--ink);
+  font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.btn:hover { background: var(--cream-2); text-decoration: none; }
+.btn-primary { background: linear-gradient(135deg, var(--caramel), var(--brown)); border-color: transparent; color: #fff; box-shadow: 0 3px 10px rgba(107, 71, 44, .28); }
+.btn-primary:hover { background: linear-gradient(135deg, var(--brown), var(--espresso)); }
+.btn-ghost { background: transparent; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; box-shadow: none; }
+.btn.block { display: block; width: 100%; text-align: center; margin-top: 1.1rem; }
+.btn.tiny-btn { padding: .3rem .55rem; font-size: .8rem; }
+.actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .75rem; }
+.actions.end { justify-content: flex-end; }
+.inline-form { display: inline-flex; gap: .35rem; align-items: center; }
+
+.filter-row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.filter-row .input { width: auto; min-width: 170px; }
+.filter-row > label { display: none; }
+.filter-row p { margin: 0; }
+.filter-row p label { display: block; font-size: .72rem; color: var(--muted); }
+.filter-row p input, .filter-row p select { margin-top: .2rem; }
+details .filter-row { margin-top: .8rem; }
+
+.summary-line { display: flex; justify-content: space-between; align-items: center; margin: .45rem 0; font-size: .95rem; }
+.summary-line strong { color: var(--espresso); }
+.summary-note { color: var(--muted); font-size: .82rem; margin: .7rem 0 0; }
+
+/* ============================ messages ============================ */
+
+.messages { margin-bottom: 1rem; }
+.msg { padding: .6rem .9rem; border-radius: var(--radius-sm); margin-bottom: .5rem; font-size: .9rem; border-left: 3px solid; }
+.msg.success { background: var(--green-bg); color: var(--ok); border-color: var(--ok); }
+.msg.error { background: var(--red-bg); color: var(--danger); border-color: var(--danger); }
+.msg.warning { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+.msg.info { background: var(--cream-2); color: var(--cocoa); border-color: var(--caramel); }
+
+/* ============================ product cards ============================ */
+
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.1rem; }
+.pcard {
+  display: flex; flex-direction: column;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  overflow: hidden; transition: transform .16s ease, box-shadow .16s ease;
+}
+.pcard:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(60, 40, 25, .13); }
+.pcard.sold-out { opacity: .62; }
+
+/* ============================ product artwork ============================ */
+
+/* Shared art used on all six product pages so the look never changes. */
+.art {
+  position: relative; display: inline-grid; place-items: center;
+  overflow: hidden; flex: none; border-radius: var(--radius-sm);
+  background: linear-gradient(150deg, #F3E3CC, #E7CFA9);
+}
+.art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.glyph { line-height: 1; filter: drop-shadow(0 3px 6px rgba(60, 40, 25, .22)); }
+
+.art-lg { width: 100%; height: 132px; border-radius: 0; }
+.art-sm { width: 40px; height: 40px; border: 1px solid var(--line); box-shadow: 0 1px 3px rgba(60, 40, 25, .1); }
+.art-xs { width: 30px; height: 30px; border: 1px solid var(--line); }
+
+/* live preview of the uploaded photo on the product form */
+.img-preview {
+  display: flex; align-items: center; gap: .8rem;
+  background: var(--cream); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: .6rem; margin: .25rem 0 .5rem;
+}
+.img-preview img { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; display: block; }
+.img-preview .none { color: var(--muted); font-size: .84rem; }
+
+.glyph-lg { font-size: 3.1rem; }
+.glyph-sm { font-size: 1.25rem; }
+.glyph-xs { font-size: .95rem; }
+
+.tint-wheat   { background: linear-gradient(150deg, #F6E7C8, #E3C48E); }
+.tint-cocoa   { background: linear-gradient(150deg, #EFDCC6, #D8B392); }
+.tint-caramel { background: linear-gradient(150deg, #F8E5CC, #EAC79A); }
+.tint-biscuit { background: linear-gradient(150deg, #F3E2CE, #DDBE9B); }
+.tint-milk    { background: linear-gradient(150deg, #F1E9DC, #DCCBB4); }
+.tint-coffee  { background: linear-gradient(150deg, #EBDAC6, #CBA97F); }
+
+/* Name cell that pairs a thumbnail with the product name */
+.name-cell { display: flex; align-items: center; gap: .6rem; }
+.name-cell .nm { min-width: 0; }
+.name-cell .nm strong { display: block; line-height: 1.3; }
+.name-cell .nm small { display: block; }
+
+.pcard-art {
+  position: relative; height: 132px;
+  display: grid; place-items: center; overflow: hidden;
+  background: linear-gradient(150deg, #F3E3CC, #E7CFA9);
+}
+.pcard-art .glyph-lg { font-size: 3.1rem; }
+.pcard-cat {
+  position: absolute; top: .55rem; left: .55rem;
+  background: rgba(47, 32, 24, .78); color: var(--cream);
+  padding: .12rem .5rem; border-radius: 999px;
+  font-size: .66rem; text-transform: uppercase; letter-spacing: .5px; font-weight: 700;
+}
+.ribbon {
+  position: absolute; bottom: .55rem; right: .55rem;
+  background: var(--danger); color: #fff; padding: .12rem .5rem; border-radius: 999px; font-size: .66rem; font-weight: 700;
+}
+
+.pcard-body { padding: .85rem .95rem .95rem; display: flex; flex-direction: column; flex: 1; }
+.pcard-body h3 { font-size: 1rem; margin-bottom: .15rem; }
+.pcard-body p { flex: 1; }
+.pcard-foot { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; margin-top: .4rem; }
+.price { font-size: 1.15rem; font-weight: 700; color: var(--espresso); }
+.price small { font-size: .7rem; font-weight: 400; color: var(--muted); }
+.pcard-form { display: flex; gap: .4rem; margin-top: .7rem; }
+.pcard-form .input { width: 64px; flex: none; }
+
+/* ================================================================
+   Login page
+   Layer order: [0] optional drop-in photo (login-bg.jpg/png/webp)
+                [1] bundled HD artwork  (login-bg.svg)
+                [2] base colour
+   If the photo file is missing the browser silently skips that layer
+   and the bundled SVG shows through — so this works with no image file.
+   To use your own photo, drop it at static/bakery/img/login-bg.jpg
+   ================================================================ */
+
+.login-page {
+  background-color: #2F2018;
+  background-image:
+    url("../img/login-bg.jpg"),
+    url("../img/login-bg.svg");
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: fixed, fixed;
+}
+.login-page::before {
+  content: "";
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 15% 40%, rgba(20, 13, 8, .55) 0%, rgba(20, 13, 8, 0) 60%),
+    linear-gradient(180deg, rgba(20, 13, 8, .35) 0%, rgba(20, 13, 8, 0) 35%, rgba(20, 13, 8, .45) 100%);
+}
+.login-page .login-shell { position: relative; z-index: 1; }
+
+.login-shell {
+  min-height: 100vh; display: grid; grid-template-columns: 1.1fr .9fr;
+  max-width: 1020px; margin: 0 auto; align-items: center; gap: 2.5rem; padding: 2.5rem 1.5rem;
+}
+.login-art { color: var(--cream); }
+.login-art .glass {
+  display: inline-block; text-align: left;
+  background: rgba(35, 22, 15, .5);
+  border: 1px solid rgba(246, 240, 228, .16);
+  border-radius: 18px; padding: 1.6rem 1.8rem 1.7rem;
+  -webkit-backdrop-filter: blur(9px) saturate(115%);
+  backdrop-filter: blur(9px) saturate(115%);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .34);
+}
+.login-art .brand-mark { margin-bottom: 1rem; }
+.login-art h1 { font-size: 2.1rem; margin: 0; }
+.tagline { color: var(--gold); letter-spacing: 2px; text-transform: uppercase; font-size: .8rem; font-weight: 700; margin: .2rem 0 0; }
+.login-blurb { margin: .9rem 0 1.4rem; color: rgba(246, 240, 228, .78); line-height: 1.7; }
+.login-points { list-style: none; margin: 0; padding: 0; }
+.login-points li { padding: .3rem 0; color: rgba(246, 240, 228, .88); font-size: .92rem; }
+
+.login-card {
+  background: var(--surface); border-radius: 16px; box-shadow: 0 20px 50px rgba(0, 0, 0, .35);
+  padding: 2rem 2.1rem;
+}
+.login-card h2 { font-size: 1.35rem; margin-bottom: .1rem; }
+.hint { text-align: center; color: var(--muted); font-size: .8rem; margin: 1.1rem 0 0; }
+.hint code { background: var(--cream-2); padding: .1rem .35rem; border-radius: 4px; color: var(--cocoa); }
+
+/* ============================ receipt ============================ */
+
+.receipt {
+  max-width: 780px; margin: 0 auto;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 1.75rem 1.9rem;
+}
+.rhead { display: flex; gap: 1rem; align-items: center; border-bottom: 2px solid var(--caramel); padding-bottom: 1rem; }
+.rletterhead { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.rletterhead .brand-logo { flex: none; width: 145px; max-height: 74px; }
+.rbrand h1 { font-size: 1.45rem; margin: 0 0 .2rem; color: var(--espresso); letter-spacing: .04em; }
+.rcompany { margin: .08rem 0; color: var(--muted); font-size: .78rem; }
+.rinvoice-label { display: inline-block; margin: .45rem 0 0; padding: .16rem .5rem; border-radius: 4px; background: var(--cream-2); color: var(--brown); font-size: .7rem; font-weight: 800; letter-spacing: .12em; }
+.rmeta { margin-left: auto; text-align: right; font-size: .84rem; }
+.rmeta p { display: flex; gap: .6rem; justify-content: flex-end; margin: 0 0 .15rem; }
+.rmeta p span { color: var(--muted); }
+.rbill-meta { min-width: 185px; padding: .55rem .7rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #fffaf1; }
+.rcustomer { display: flex; justify-content: space-between; gap: 1rem; padding: .8rem .9rem; margin: .8rem 0; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); font-size: .88rem; }
+.rcustomer-info { display: grid; gap: .12rem; }
+.rcustomer-info strong { font-size: 1rem; }
+.rcustomer-info > span:not(.rsection-label) { color: var(--muted); overflow-wrap: anywhere; }
+.rsection-label { color: var(--muted); font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.rstatus { display: flex; flex-direction: column; align-items: flex-end; gap: .35rem; white-space: nowrap; }
+.rtable { margin-top: .4rem; }
+.rtable th, .rtable td { padding: .55rem .5rem; }
+.rgrid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 1.5rem; margin-top: 1.1rem; align-items: start; }
+.rtotals p { display: flex; justify-content: space-between; margin: .3rem 0; font-size: .92rem; }
+.rtotals .grand { font-size: 1.2rem; font-weight: 700; color: var(--espresso); border-top: 2px solid var(--ink); padding-top: .5rem; margin-top: .5rem; }
+.rpay { background: var(--cream); border-radius: var(--radius-sm); padding: .8rem .9rem; text-align: center; }
+.rpay p { margin: .1rem 0; font-size: .84rem; }
+.pay-method { font-size: 1.05rem !important; font-weight: 700; color: var(--brown); }
+.pay-ico { margin-right: .3rem; }
+.rfoot { position: relative; min-height: 105px; text-align: center; margin-top: 1.3rem; padding-top: .8rem; border-top: 1px dashed var(--line); }
+.rfoot p { margin: .15rem 0; font-size: .88rem; }
+.rauthorised { display: flex; flex-direction: column; align-items: center; gap: .16rem; width: 190px; margin: .8rem 0 0 auto; font-size: .74rem; }
+.rsign-line { width: 150px; height: 22px; border-bottom: 1px solid var(--ink); }
+.rauthorised > span:first-child { color: var(--muted); font-weight: 600; }
+
+.foot { text-align: center; color: var(--muted); font-size: .8rem; padding: 1.5rem 0 0; margin-left: var(--sidebar-w); }
+
+/* ============================ POS cart ============================ */
+
+.pos-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1.25rem;
+  align-items: start;
+}
+.pos-products { min-width: 0; }
+.cart-panel { position: sticky; top: 1rem; padding: 1rem; margin-bottom: 0; }
+.cart-panel-items { max-height: 46vh; overflow: auto; margin: .25rem 0 .75rem; }
+.cart-panel-item {
+  display: flex;
+  gap: .65rem;
+  justify-content: space-between;
+  padding: .6rem 0;
+  border-bottom: 1px dashed var(--line);
+}
+.cart-panel-item:last-child { border-bottom: none; }
+.cart-panel-main { min-width: 0; }
+.cart-panel-main strong { display: block; font-size: .9rem; }
+.cart-panel-main small { display: block; }
+.cart-panel-side { text-align: right; white-space: nowrap; }
+.cart-panel-side strong { display: block; font-size: .9rem; }
+.cart-panel-qty { display: flex; align-items: center; gap: .5rem; margin-top: .35rem; flex-wrap: wrap; }
+.cart-panel-qty .inline-form { display: flex; align-items: center; gap: .3rem; }
+.cart-panel-totals { border-top: 1px solid var(--line); padding-top: .6rem; margin-top: .4rem; }
+.cart-grand { font-size: 1.05rem; }
+.stock-alert { color: var(--danger); font-size: .74rem; display: block; margin-top: .15rem; }
+.report-filter input[hidden] { display: none; }
+
+/* ============================ responsive ============================ */
+
+@media (max-width: 1080px) {
+  .split { grid-template-columns: 1fr; }
+  .pos-layout { grid-template-columns: 1fr; }
+  .cart-panel { position: static; }
+  .cart-panel-items { max-height: none; }
+  .login-shell { grid-template-columns: 1fr; text-align: center; max-width: 460px; }
+  .login-art .glass { text-align: center; }
+  .login-art .brand-mark { margin-left: auto; margin-right: auto; }
+  .login-points { display: none; }
+}
+
+@media (max-width: 900px) {
+  .nav-toggle {
+    display: grid; place-items: center; position: fixed; top: .8rem; left: .8rem; z-index: 60;
+    width: 42px; height: 42px; border-radius: var(--radius-sm);
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+    font-size: 1.2rem; cursor: pointer; box-shadow: var(--shadow);
+  }
+  .sidebar { transform: translateX(-100%); transition: transform .22s ease; box-shadow: 0 0 40px rgba(0, 0, 0, .3); }
+  .sidebar.open { transform: translateX(0); }
+  .scrim { display: block; position: fixed; inset: 0; background: rgba(47, 32, 24, .5); z-index: 30; }
+  .main { margin-left: 0; padding: 4.2rem 1.1rem 2rem; }
+  .foot { margin-left: 0; }
+  .rgrid { grid-template-columns: 1fr; }
+  .rhead { flex-wrap: wrap; }
+  .rmeta { margin-left: 0; text-align: left; width: 100%; }
+  .rmeta p { justify-content: flex-start; }
+  .rstatus { align-items: flex-start; }
+}
+
+@media (max-width: 520px) {
+  .page-title { font-size: 1.3rem; }
+  .stat-value { font-size: 1.35rem; }
+  .product-grid { grid-template-columns: 1fr 1fr; }
+  .pcard-form { flex-direction: column; }
+  .pcard-form .input { width: 100%; }
+  .receipt { padding: 1.1rem; }
+}
+
+/* ============================ print ============================ */
+
+@media print {
+  @page { size: A4 portrait; margin: 12mm; }
+  .sidebar, .foot, .nav-toggle, .scrim, .page-head-actions, .messages, .split, .page-band { display: none !important; }
+  /* the live clock is screen furniture, and its ticking seconds would smear */
+  .page-clock { display: none !important; }
+  body { background: #fff; }
+  .main { margin: 0; padding: 0; max-width: none; }
+  .receipt { border: none; box-shadow: none; padding: 0; max-width: none; }
+  .receipt-page .page-head { display: none !important; }
+  .receipt-page .main { width: 100%; }
+  .receipt-page .rhead { flex-wrap: nowrap; gap: 8mm; }
+  .receipt-page .rletterhead { gap: 5mm; }
+  .receipt-page .rletterhead .brand-logo { width: 38mm; max-height: 19mm; }
+  .receipt-page .rbrand h1 { font-size: 16pt; }
+  .receipt-page .rcompany { font-size: 8pt; }
+  .receipt-page .rbill-meta { min-width: 48mm; font-size: 8pt; }
+  .receipt-page .rcustomer { font-size: 8.5pt; }
+  .receipt-page .rtable { font-size: 8.5pt; }
+  .receipt-page .rtable th, .receipt-page .rtable td { padding: 5pt 4pt; }
+  .receipt-page .rgrid { grid-template-columns: 1.2fr .8fr; gap: 8mm; }
+  .receipt-page .rfoot { margin-top: 8mm; }
+  .page-title { font-size: 1.1rem; }
+  .table tbody tr:hover { background: none; }
+  .btn { display: none; }
+  /* a printed ledger must not be clipped by the on-screen scroll box */
+  .table-scroll { overflow: visible !important; max-height: none !important; }
+  .card { border: 0; box-shadow: none; padding: 0; }
+  .table { font-size: .8rem; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+}

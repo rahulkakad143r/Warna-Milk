@@ -1,0 +1,1086 @@
+/* ============================================================
+   Warana login page
+   Left: bakery photo + hero copy. Right: compact login card.
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background: #fffaf1;
+    color: #32160c;
+}
+
+
+/* ================= PAGE ================= */
+
+.page {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+
+    /* header / main / features stack, and the middle band absorbs whatever
+       vertical slack is left, so the page fills the window exactly at any
+       height and the card stays centred in it */
+    display: flex;
+    flex-direction: column;
+
+    background: url("../img/wheat.webp") no-repeat right bottom;
+    background-size: 260px;
+}
+
+
+/* ================= HEADER ================= */
+
+/* height is viewport-aware: 155px on a tall screen exactly as designed,
+   but a 1366x768 or 1280x720 laptop would otherwise scroll the page */
+.header {
+    height: clamp(96px, 15vh, 155px);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 15px 55px;
+
+    background: #fffaf1;
+
+    border-bottom: 2px solid #f0e2d0;
+}
+
+
+/* LOGO AREA */
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.logo img {
+    width: 275px;
+    height: auto;
+    display: block;
+}
+
+.divider {
+    height: 75px;
+    width: 2px;
+    background: #8b5a3c;
+}
+
+.title {
+    text-align: center;
+}
+
+.title h2 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #35160d;
+}
+
+.title h3 {
+    font-size: 23px;
+    margin-top: 2px;
+    color: #35160d;
+}
+
+
+/* BRAND BOX */
+
+.brand-box {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    background: #54200c;
+    color: white;
+
+    padding: 15px 28px;
+
+    border-radius: 14px;
+
+    box-shadow: 0 5px 15px rgba(70, 25, 5, 0.2);
+}
+
+.brand-box .bread-icon {
+    font-size: 45px;
+    color: #f4a300;
+}
+
+.brand-box h3 {
+    font-size: 25px;
+}
+
+.brand-box p {
+    font-size: 14px;
+    margin-top: 3px;
+}
+
+
+/* ================= MAIN ================= */
+
+/* grid/flex children default to min-width:auto and refuse to shrink below
+   their longest word, which pushes a horizontal scrollbar on phones */
+.main > *, .header > *, .features > * { min-width: 0; }
+.hero-content, .login-card, .feature > div { overflow-wrap: anywhere; }
+
+.main {
+    display: grid;
+
+    grid-template-columns: 55% 45%;
+
+    min-height: clamp(430px, 68vh, 720px);
+
+    flex: 1 0 auto;
+
+    position: relative;
+
+    background: #f7eee2;
+}
+
+
+/* ================= HERO ================= */
+
+.hero {
+    position: relative;
+
+    min-height: clamp(430px, 68vh, 720px);
+
+    background-image: url("../img/bakery-bg.jpg");
+
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+}
+
+
+/* DARK OVERLAY */
+/* heavy on the left, where the white hero copy sits, and light on the right
+   where there is no text - the photo's own luminance is ~103 with highlights
+   up to 241, so the copy needs the dark end of this ramp */
+.hero-overlay {
+    position: absolute;
+
+    inset: 0;
+
+    background: linear-gradient(
+        90deg,
+        rgba(45, 20, 8, 0.78),
+        rgba(45, 20, 8, 0.25),
+        rgba(45, 20, 8, 0.05)
+    );
+}
+
+
+/* HERO TEXT */
+
+.hero-content {
+    position: relative;
+
+    z-index: 2;
+
+    max-width: 600px;
+
+    padding-left: 80px;
+
+    color: white;
+}
+
+.hero-content h1 {
+    font-size: 60px;
+
+    font-weight: 800;
+
+    margin-bottom: 4px;
+}
+
+.hero-content h2 {
+    font-size: 29px;
+
+    font-weight: 700;
+
+    margin-bottom: 22px;
+}
+
+.yellow-line {
+    width: 85px;
+    height: 7px;
+
+    border-radius: 10px;
+
+    background: #f7aa00;
+
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    font-size: 20px;
+
+    line-height: 1.7;
+
+    max-width: 520px;
+}
+
+
+/* ================= LOGIN SECTION ================= */
+
+.login-section {
+    position: relative;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 30px 60px;
+
+    background: linear-gradient(
+        rgba(255, 250, 241, 0.92),
+        rgba(255, 250, 241, 0.96)
+    );
+}
+
+
+/* WHEAT DECORATION */
+
+.login-section::after {
+    content: "";
+
+    position: absolute;
+
+    right: -35px;
+    bottom: -30px;
+
+    width: 190px;
+    height: 300px;
+
+    background: url("../img/wheat.webp") no-repeat;
+
+    background-size: contain;
+
+    pointer-events: none;
+
+    opacity: 0.95;
+}
+
+
+/* ================= LOGIN CARD ================= */
+
+.login-card {
+    position: relative;
+
+    z-index: 3;
+
+    width: 510px;
+
+    padding: 35px 55px 30px;
+
+    background: rgba(255, 255, 255, 0.97);
+
+    border-radius: 25px;
+
+    border: 1px solid #ead8c3;
+
+    box-shadow: 0 15px 45px rgba(74, 35, 12, 0.18);
+
+    text-align: center;
+}
+
+
+/* LOGIN LOGO */
+
+.login-logo img {
+    width: 180px;
+
+    max-height: 110px;
+
+    object-fit: contain;
+
+    margin-bottom: 5px;
+}
+
+
+/* TITLE */
+
+.login-card h2 {
+    font-size: 27px;
+
+    color: #451a0b;
+
+    font-weight: 800;
+
+    margin-top: 0;
+}
+
+.subtitle {
+    font-size: 17px;
+
+    color: #512316;
+
+    margin-top: 4px;
+}
+
+
+/* GOLD ICON */
+
+.gold-icon {
+    margin: 13px auto 16px;
+
+    width: 50px;
+
+    height: 25px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    color: #e99a00;
+
+    font-size: 25px;
+
+    position: relative;
+}
+
+.gold-icon::before,
+.gold-icon::after {
+    content: "";
+
+    height: 1px;
+
+    width: 100px;
+
+    background: #d9c8b7;
+
+    position: absolute;
+
+    top: 50%;
+}
+
+.gold-icon::before { right: 100%; }
+.gold-icon::after { left: 100%; }
+
+
+/* ================= INPUT ================= */
+
+.input-box {
+    height: 60px;
+
+    border: 1.5px solid #d5d5d5;
+
+    border-radius: 10px;
+
+    display: flex;
+
+    align-items: center;
+
+    margin-bottom: 12px;
+
+    padding: 0 16px;
+
+    background: #fff;
+
+    transition: 0.25s;
+}
+
+.input-box:focus-within {
+    border-color: #8d3510;
+
+    box-shadow: 0 0 0 3px rgba(141, 53, 16, 0.08);
+}
+
+.input-box > i:first-child {
+    font-size: 21px;
+
+    color: #1d3557;
+
+    width: 30px;
+}
+
+.input-box input {
+    width: 100%;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    font-family: "Poppins", sans-serif;
+
+    font-size: 17px;
+
+    padding-left: 10px;
+
+    color: #32160c;
+}
+
+.input-box input::placeholder { color: #8c8c8c; }
+
+.eye {
+    cursor: pointer;
+
+    color: #777 !important;
+
+    width: auto !important;
+}
+
+
+/* ================= LOGIN BUTTON ================= */
+
+.login-btn {
+    width: 100%;
+
+    height: 58px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: linear-gradient(135deg, #6b260b, #8e350d);
+
+    color: white;
+
+    font-size: 20px;
+
+    font-family: "Poppins", sans-serif;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    margin-top: 4px;
+
+    transition: 0.25s;
+}
+
+.login-btn i { margin-left: 14px; }
+
+.login-btn:hover {
+    background: linear-gradient(135deg, #8e350d, #a84612);
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 6px 15px rgba(100, 35, 8, 0.25);
+}
+
+
+/* ================= OPTIONS ================= */
+
+.login-options {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 15px;
+
+    font-size: 14px;
+}
+
+.remember {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    cursor: pointer;
+}
+
+.remember input {
+    width: 19px;
+    height: 19px;
+
+    accent-color: #6b260b;
+}
+
+.forgot {
+    text-decoration: none;
+
+    color: #0066b3;
+
+    font-weight: 500;
+}
+
+.forgot:hover { text-decoration: underline; }
+
+
+/* ================= CLOCK ================= */
+
+/* Lives in the header, not the card: the card already fills a 720px laptop and
+   the login page must not grow a scrollbar just to stamp the time. */
+.login-clock {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin: 0 18px;
+    padding: 7px 14px;
+
+    flex: none;
+
+    border: 1px solid #e6d3b3;
+    border-radius: 999px;
+    background: #fff;
+
+    color: #7a5c3e;
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.login-clock strong {
+    color: #54200c;
+    font-weight: 700;
+    letter-spacing: .3px;
+}
+
+/* no room for it once the header crowds */
+@media (max-width: 1080px) {
+    .login-clock { display: none; }
+}
+
+
+/* ================= AUTHORIZED ================= */
+
+.authorized {
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    text-align: left;
+
+    margin-top: 22px;
+
+    padding: 17px 20px;
+
+    background: #fff7eb;
+
+    border-radius: 12px;
+
+    border: 1px solid #f3e4d0;
+}
+
+.authorized > i {
+    font-size: 35px;
+
+    color: #54200c;
+}
+
+.authorized strong {
+    display: block;
+
+    font-size: 14px;
+
+    color: #34150b;
+}
+
+.authorized span {
+    display: block;
+
+    font-size: 12px;
+
+    color: #333;
+
+    margin-top: 3px;
+}
+
+
+/* ================= ERROR ================= */
+
+.form-error {
+    background: #ffe8e8;
+
+    color: #a00000;
+
+    border: 1px solid #ffbdbd;
+
+    border-radius: 8px;
+
+    padding: 9px;
+
+    margin-bottom: 12px;
+
+    font-size: 13px;
+}
+
+
+/* ================= FEATURES ================= */
+
+.features {
+    min-height: clamp(96px, 12vh, 125px);
+
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    align-items: center;
+
+    background: #fff8ed;
+
+    padding: 20px 55px;
+
+    position: relative;
+
+    z-index: 5;
+}
+
+.feature {
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 0 25px;
+
+    border-right: 1px solid #d8c1a7;
+
+    min-height: 70px;
+}
+
+.feature:last-child { border-right: none; }
+
+.feature-icon {
+    width: 58px;
+    height: 58px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #f9e5ce;
+
+    color: #61240d;
+
+    font-size: 25px;
+}
+
+.feature h4 {
+    font-size: 15px;
+
+    color: #3d180c;
+
+    margin-bottom: 3px;
+}
+
+.feature p {
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    color: #4c4c4c;
+
+    max-width: 190px;
+}
+
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1200px) {
+
+    .header { padding: 15px 30px; }
+    .logo img { width: 220px; }
+    .title h2 { font-size: 25px; }
+    .title h3 { font-size: 18px; }
+    .brand-box { padding: 12px 18px; }
+    .main { grid-template-columns: 52% 48%; }
+    .hero-content { padding-left: 50px; }
+    .hero-content h1 { font-size: 48px; }
+    .login-card { width: 450px; padding: 30px 40px; }
+
+}
+
+
+/* TABLET */
+
+@media (max-width: 900px) {
+
+    .header {
+        height: auto;
+
+        flex-direction: column;
+
+        gap: 15px;
+
+        padding: 20px;
+    }
+
+    .logo-area {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+    .brand-box { display: none; }
+
+    .main {
+        grid-template-columns: 1fr;
+
+        min-height: auto;
+    }
+
+    .hero { min-height: 420px; }
+    .login-section { min-height: auto; padding: 40px 20px; }
+
+    .features {
+        grid-template-columns: repeat(2, 1fr);
+
+        gap: 15px;
+    }
+
+    .feature {
+        border-right: none;
+
+        border-bottom: 1px solid #d8c1a7;
+
+        padding: 15px;
+    }
+
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .logo-area { gap: 12px; }
+    .logo img { width: 150px; }
+    .divider { height: 50px; }
+    .title h2 { font-size: 17px; }
+    .title h3 { font-size: 14px; }
+
+    .hero { min-height: 350px; }
+    .hero-content { padding: 30px; }
+    .hero-content h1 { font-size: 38px; }
+    .hero-content h2 { font-size: 20px; }
+    .hero-content p { font-size: 15px; }
+
+    .login-card {
+        width: 100%;
+
+        padding: 25px 22px;
+
+        border-radius: 18px;
+    }
+
+    .login-logo img { width: 145px; }
+    .login-card h2 { font-size: 23px; }
+    .subtitle { font-size: 14px; }
+
+    .input-box { height: 54px; }
+    .login-btn { height: 54px; font-size: 17px; }
+    .login-options { font-size: 12px; }
+
+    .authorized { padding: 12px; }
+    .authorized > i { font-size: 27px; }
+
+    .features {
+        grid-template-columns: 1fr;
+
+        padding: 15px 20px;
+    }
+
+    .feature { border-bottom: 1px solid #d8c1a7; }
+    .feature:last-child { border-bottom: none; }
+
+}
+
+
+/* ================= POPUPS ================= */
+
+/* Success banner on the login card (non-JS password reset falls back here) */
+
+.form-success {
+    background: #e9f7ec;
+
+    color: #14682c;
+
+    border: 1px solid #b7e4c1;
+
+    border-radius: 8px;
+
+    padding: 9px;
+
+    margin-bottom: 12px;
+
+    font-size: 13px;
+}
+
+
+/* Reset password + success dialogs */
+
+.popup-backdrop {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(45, 20, 8, 0.55);
+
+    backdrop-filter: blur(3px);
+}
+
+.popup-backdrop[hidden] { display: none; }
+
+body.popup-open { overflow: hidden; }
+
+.popup-card {
+    position: relative;
+
+    width: 430px;
+
+    max-width: 100%;
+
+    max-height: 92vh;
+
+    overflow-y: auto;
+
+    padding: 30px 32px 28px;
+
+    background: #fffdf9;
+
+    border: 1px solid #ead8c3;
+
+    border-radius: 22px;
+
+    box-shadow: 0 25px 60px rgba(45, 20, 8, 0.4);
+
+    text-align: center;
+
+    animation: popup-in 0.2s ease-out;
+}
+
+@keyframes popup-in {
+    from { opacity: 0; transform: translateY(-14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.popup-close {
+    position: absolute;
+
+    top: 12px;
+
+    right: 16px;
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 28px;
+
+    line-height: 1;
+
+    color: #8c8c8c;
+
+    cursor: pointer;
+}
+
+.popup-close:hover { color: #6b260b; }
+
+.popup-icon {
+    width: 58px;
+
+    height: 58px;
+
+    margin: 0 auto 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #f9e5ce;
+
+    color: #61240d;
+
+    font-size: 25px;
+}
+
+.popup-icon-ok {
+    background: #e9f7ec;
+
+    color: #14682c;
+}
+
+.popup-card h3 {
+    font-size: 22px;
+
+    font-weight: 800;
+
+    color: #451a0b;
+}
+
+.step-badge {
+    display: inline-block;
+
+    padding: 4px 14px;
+
+    margin-bottom: 8px;
+
+    border-radius: 999px;
+
+    background: #f9e5ce;
+
+    color: #61240d;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    letter-spacing: 0.4px;
+}
+
+.popup-back {
+    display: block;
+
+    margin: 12px auto 0;
+
+    border: none;
+
+    background: transparent;
+
+    color: #0066b3;
+
+    font-family: "Poppins", sans-serif;
+
+    font-size: 13px;
+
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+.popup-back:hover { text-decoration: underline; }
+
+.popup-sub {
+    font-size: 13.5px;
+
+    color: #512316;
+
+    margin-top: 5px;
+
+    margin-bottom: 18px;
+
+    line-height: 1.5;
+}
+
+.popup-success .popup-sub { margin-bottom: 20px; }
+
+.popup-card .input-box {
+    height: 52px;
+
+    margin-bottom: 10px;
+}
+
+.popup-card .login-btn { margin-top: 6px; }
+
+
+/* ================= SHORT SCREENS ================= */
+/* The design above is proportioned for a ~1000px tall window (155px header +
+   720px hero + 125px features). Any window shorter than that would scroll, so
+   below 1010px the bands and the card compact to keep the whole login on one
+   screen. Above it, the layout is exactly as designed. */
+
+@media (max-height: 1010px) {
+
+    .header {
+        height: auto;
+        padding: 10px 30px;
+    }
+
+    .logo img { width: 165px; }
+    .divider { height: 52px; }
+    .title h2 { font-size: 21px; }
+    .title h3 { font-size: 16px; }
+    .brand-box { padding: 9px 15px; }
+    .brand-box .bread-icon { font-size: 30px; }
+    .brand-box h3 { font-size: 18px; }
+    .brand-box p { font-size: 12px; }
+
+    .main, .hero { min-height: 0; }
+    .login-section { padding: 16px 30px; }
+
+    .hero-content { padding-left: 42px; }
+    .hero-content h1 { font-size: 38px; }
+    .hero-content h2 { font-size: 20px; margin-bottom: 12px; }
+    .yellow-line { height: 5px; margin-bottom: 12px; }
+    .hero-content p { font-size: 15px; line-height: 1.55; }
+
+    .login-card {
+        width: 460px;
+        padding: 20px 38px 18px;
+        border-radius: 20px;
+    }
+
+    .login-logo img { width: 132px; max-height: 62px; }
+    .login-card h2 { font-size: 20px; }
+    .subtitle { font-size: 13px; }
+
+    .gold-icon {
+        margin: 8px auto 10px;
+        height: 18px;
+        font-size: 18px;
+    }
+
+    .gold-icon::before, .gold-icon::after { width: 60px; }
+
+    .input-box {
+        height: 46px;
+        margin-bottom: 9px;
+        padding: 0 13px;
+    }
+
+    .input-box > i:first-child { font-size: 17px; width: 24px; }
+    .input-box input { font-size: 15px; }
+
+    .login-btn { height: 45px; font-size: 16px; }
+
+    .login-options { margin-top: 11px; font-size: 12px; }
+    .remember input { width: 16px; height: 16px; }
+
+    .authorized { margin-top: 13px; padding: 11px 14px; gap: 13px; }
+    .authorized > i { font-size: 25px; }
+    .authorized strong { font-size: 12px; }
+    .authorized span { font-size: 11px; }
+
+    .features {
+        min-height: 0;
+        padding: 13px 30px;
+    }
+
+    .feature { min-height: 52px; gap: 13px; }
+    .feature-icon { width: 42px; height: 42px; font-size: 18px; }
+    .feature h4 { font-size: 13px; }
+    .feature p { font-size: 11px; }
+}

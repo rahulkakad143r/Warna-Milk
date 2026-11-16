@@ -1,0 +1,141 @@
+{% extends "bakery/base.html" %}
+{% load bakery_tags %}
+{% block title %}Dashboard{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+{% block subheading %}Today at a glance{% endblock %}
+{% block head_actions %}
+<a class="btn btn-primary" href="{% url 'bakery:browse' %}">+ New Sale</a>
+{% endblock %}
+
+{% block content %}
+<div class="stat-grid">
+  <div class="stat">
+    <span class="stat-ico">&#128200;</span>
+    <span class="stat-label">Sales Today</span>
+    <span class="stat-value">&#8377;{{ counts.sales_today|floatformat:2 }}</span>
+    <a href="{% url 'bakery:reports' %}">{{ counts.bills_today }} bill{{ counts.bills_today|pluralize }} today &rarr;</a>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#129534;</span>
+    <span class="stat-label">Total Bills</span>
+    <span class="stat-value">{{ counts.bill_count }}</span>
+    <a href="{% url 'bakery:bills' %}">View all bills &rarr;</a>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#127978;</span>
+    <span class="stat-label">Products</span>
+    <span class="stat-value">{{ counts.product_count }}</span>
+    <a href="{% url 'bakery:products' %}">Manage master &rarr;</a>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#128230;</span>
+    <span class="stat-label">Units in Stock</span>
+    <span class="stat-value">{{ counts.stock_count }}</span>
+    <a href="{% url 'bakery:inventory' %}">Stock report &rarr;</a>
+  </div>
+  <div class="stat{% if counts.expired_count or counts.expiring_count %} is-alert{% endif %}">
+    <span class="stat-ico">&#9203;</span>
+    <span class="stat-label">Expiry Alerts</span>
+    <span class="stat-value">{{ counts.expiring_count }}<small class="muted-text"> soon</small> / {{ counts.expired_count }}<small class="muted-text"> expired</small></span>
+    <a href="{% url 'bakery:products' %}?expiry=soon">Review expiries &rarr;</a>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#129300;</span>
+    <span class="stat-label">Suppliers</span>
+    <span class="stat-value">{{ counts.supplier_count }}</span>
+    <a href="{% url 'bakery:purchases' %}">Record purchase &rarr;</a>
+  </div>
+</div>
+
+<div class="split">
+  <section class="card">
+    <div class="card-head">
+      <h2>Sales &mdash; Last 7 Days</h2>
+      <span class="muted-text">Paid bills only</span>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="week-chart" height="240" role="img" aria-label="Daily sales for the last 7 days"></canvas>
+    </div>
+    <div class="legend">
+      <span class="swatch"></span> Net sales (&#8377;)
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Low Stock Alerts</h2>
+      <span class="pill {% if low_stock %}warn{% else %}ok{% endif %}">{{ low_stock|length }}</span>
+    </div>
+    {% if low_stock %}
+      <ul class="meter-list">
+        {% for inv in low_stock %}
+        <li>
+          <div class="meter-top">
+            <span>{{ inv.product.name }}</span>
+            <span class="pill {% if inv.is_out %}danger{% else %}warn{% endif %}">{{ inv.stock_status_label }}</span>
+          </div>
+          <div class="meter"><i class="{% if inv.is_out %}danger{% else %}warn{% endif %}" style="width:{% if inv.is_out %}2{% else %}{{ inv.quantity|stock_percent:60 }}{% endif %}%"></i></div>
+          <small class="stock-alert">{{ inv.low_stock_message }}</small>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">All products have more than {{ low_stock_threshold }} units in stock.</p>
+    {% endif %}
+
+    <h3 class="mt">Expiring Soon</h3>
+    <ul class="meter-list">
+      {% for p in expiring %}
+      <li>
+        <div class="meter-top">
+          <span>{{ p.name }}</span>
+          <span class="pill {% if p.expiry_state == "expired" %}danger{% else %}warn{% endif %}">{{ p.expiry_note }}</span>
+        </div>
+        <small class="muted-text">{{ p.stock }} {{ p.get_unit_display }} in stock &middot; expires {{ p.expiry_date|date:"d M Y" }}</small>
+      </li>
+      {% empty %}
+      <li class="empty">Nothing is expiring in the next 7 days.</li>
+      {% endfor %}
+    </ul>
+
+    <h3 class="mt">Top Sellers</h3>
+    <ul class="rank-list">
+      {% for r in top_products %}
+      <li><span class="rank">{{ forloop.counter }}</span>{{ r.product_name }}<span class="muted-text">{{ r.units }} units</span></li>
+      {% empty %}<li class="empty">No sales yet.</li>{% endfor %}
+    </ul>
+  </section>
+</div>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Recent Bills</h2>
+    <a class="link" href="{% url 'bakery:bills' %}">See all</a>
+  </div>
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th>Bill No</th><th>Time</th><th>Customer</th><th>Payment</th><th class="right">Total</th><th class="right">Receipt</th></tr></thead>
+      <tbody>
+      {% for b in recent_bills %}
+        <tr>
+          <td><strong>{{ b.bill_number }}</strong></td>
+          <td>{{ b.created_at|time:"H:i" }}</td>
+          <td>{{ b.customer.name|default:"Walk-in" }}</td>
+          <td><span class="chip">{{ b.payment.get_method_display|default:"-" }}</span></td>
+          <td class="right">&#8377;{{ b.total|floatformat:2 }}</td>
+          <td class="right"><a class="link" href="{% url 'bakery:receipt' b.pk %}">view</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="empty">No bills yet. <a href="{% url 'bakery:browse' %}">Create the first bill</a>.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{{ week|json_script:"week-data" }}
+<script>window.GK_CHART = { points: JSON.parse(document.getElementById("week-data").textContent) };</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "bakery/base.html" %}
+{% load bakery_tags %}
+{% block title %}Inventory{% endblock %}
+{% block nav_inventory %}active{% endblock %}
+{% block heading %}Inventory{% endblock %}
+{% block subheading %}Stock levels and low-stock warnings at {{ low_stock_threshold }} units or fewer{% endblock %}
+
+{% block content %}
+<div class="stat-grid">
+  <div class="stat">
+    <span class="stat-ico">&#128230;</span>
+    <span class="stat-label">Total Units in Stock</span>
+    <span class="stat-value">{{ total_units }}</span>
+  </div>
+  <div class="stat{% if low_count %} is-alert{% endif %}">
+    <span class="stat-ico">&#9888;</span>
+    <span class="stat-label">Low Stock ({{ low_stock_threshold }} units or fewer)</span>
+    <span class="stat-value">{{ low_count }}</span>
+  </div>
+  <div class="stat{% if out_count %} is-alert{% endif %}">
+    <span class="stat-ico">&#10060;</span>
+    <span class="stat-label">Out of Stock</span>
+    <span class="stat-value">{{ out_count }}</span>
+  </div>
+</div>
+
+<section class="card">
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th>ID</th><th>Product Name</th><th>Category</th><th class="right">Rate / Unit</th><th class="right">Low Stock At</th><th>Stock</th><th>Status</th><th class="right">Update</th></tr></thead>
+      <tbody>
+      {% for inv in rows %}
+      <tr>
+        <td class="nowrap"><span class="pill">#{{ inv.product.pk }}</span></td>
+        <td>
+          <div class="name-cell">
+            {% include "bakery/_product_art.html" with product=inv.product size="sm" %}
+            <span class="nm"><strong>{{ inv.product.name }}</strong></span>
+          </div>
+        </td>
+        <td>{{ inv.product.category.name }}</td>
+        <td class="right nowrap">&#8377;{{ inv.product.price|floatformat:2 }} <small class="muted-text">/ {{ inv.product.get_unit_display }}</small></td>
+        <td class="right">{{ low_stock_threshold }}</td>
+        <td class="stock-cell">
+          <div class="meter"><i class="{% if inv.is_out %}danger{% elif inv.is_low %}warn{% else %}ok{% endif %}" style="width:{{ inv.quantity|stock_percent }}%"></i></div>
+          <small class="muted-text"><strong>{{ inv.quantity }}</strong> {{ inv.product.unit }} in stock</small>
+          {% if inv.is_low %}<small class="stock-alert">{{ inv.low_stock_message }}</small>{% endif %}
+        </td>
+        <td><span class="pill {% if inv.is_out %}danger{% elif inv.is_low %}warn{% else %}ok{% endif %}">{{ inv.stock_status_label|upper }}</span></td>
+        <td class="right">
+          <form method="post" class="inline-form">
+            {% csrf_token %}
+            <input type="hidden" name="pk" value="{{ inv.pk }}">
+            <input class="input tiny" type="number" name="quantity" min="0" value="{{ inv.quantity }}" aria-label="Quantity">
+            <button class="btn tiny-btn" type="submit">Save</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="empty">No inventory records. Add a product first.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="summary-note">
+    Low Stock means 1&ndash;{{ low_stock_threshold }} units; Out of Stock means 0.
+    Stock is deducted automatically after every completed bill.
+  </p>
+</section>
+{% endblock %}

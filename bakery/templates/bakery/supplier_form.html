@@ -1,0 +1,21 @@
+{% extends "bakery/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block nav_purchases %}active{% endblock %}
+{% block nav_suppliers %}active{% endblock %}
+{% block heading %}{{ title }}{% endblock %}
+{% block subheading %}Contact details for stock purchases{% endblock %}
+
+{% block content %}
+<section class="card narrow">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.as_p }}
+    <p class="summary-note">The phone number must be exactly 10 digits.</p>
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Save Supplier</button>
+      <a class="btn btn-ghost" href="{% url 'bakery:suppliers' %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

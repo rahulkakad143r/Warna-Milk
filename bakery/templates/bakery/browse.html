@@ -1,0 +1,53 @@
+{% extends "bakery/base.html" %}
+{% load bakery_tags %}
+{% block title %}New Sale{% endblock %}
+{% block nav_browse %}active{% endblock %}
+{% block heading %}Point of Sale{% endblock %}
+{% block subheading %}Select products and add them to the cart{% endblock %}
+{% block content %}
+<section class="card">
+  <form method="get" action="{% url 'bakery:browse' %}" class="filter-row">
+    <select class="input" name="category" onchange="this.form.submit()">
+      <option value="">All categories</option>
+      {% for c in categories %}<option value="{{ c.pk }}" {% if selected_category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+    <span class="grow"></span>
+    <a class="btn btn-primary" href="{% url 'bakery:cart' %}">Cart ({{ cart.item_count }}) &mdash; &#8377;{{ cart.subtotal|floatformat:2 }}</a>
+  </form>
+</section>
+
+<div class="pos-layout">
+  <div class="pos-products">
+    <div class="product-grid">
+      {% for p in products %}
+      <article class="pcard{% if p.is_out_of_stock %} sold-out{% endif %}">
+        <div class="pcard-art">
+          {% include "bakery/_product_art.html" with product=p %}
+          <span class="pcard-cat">{{ p.category.name }}</span>
+          {% if p.is_out_of_stock %}<span class="ribbon">Sold out</span>{% endif %}
+        </div>
+        <div class="pcard-body">
+          <h3>{{ p.name }}</h3>
+          <p class="muted-text">{{ p.description|truncatechars:52|default:"Freshly baked daily." }}</p>
+          <div class="pcard-foot">
+            <span class="price">&#8377;{{ p.price|floatformat:2 }}<small>/{{ p.unit }}</small></span>
+            <span class="pill {% if p.is_out_of_stock %}danger{% elif p.is_low_stock %}warn{% else %}ok{% endif %}">{{ p.stock_status_label }}</span>
+          </div>
+          {% if p.is_low_stock %}<p class="stock-alert">{{ p.low_stock_message }}</p>{% endif %}
+          <form method="post" action="{% url 'bakery:cart_add' p.pk %}" class="pcard-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input class="input tiny" type="number" name="quantity" min="1" max="{{ p.stock }}" value="1" aria-label="Quantity">
+            <button class="btn btn-primary grow" type="submit" {% if p.is_out_of_stock %}disabled{% endif %}>Add to Cart</button>
+          </form>
+        </div>
+      </article>
+      {% empty %}
+      <p class="empty">No products available. <a href="{% url 'bakery:product_create' %}">Add a product</a>.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% include "bakery/_cart_panel.html" %}
+</div>
+{% endblock %}

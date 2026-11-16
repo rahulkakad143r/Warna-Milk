@@ -1,0 +1,15 @@
+<tr class="line-row">
+  <td>
+    {{ lineform.id }}
+    {{ lineform.product }}
+    {{ lineform.product.errors }}
+    {% if lineform.non_field_errors %}
+      <ul class="errorlist">{% for e in lineform.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </td>
+  <td>{{ lineform.quantity }}{{ lineform.quantity.errors }}</td>
+  <td>{{ lineform.unit_cost }}{{ lineform.unit_cost.errors }}</td>
+  <td>{{ lineform.tax_rate }}{{ lineform.tax_rate.errors }}</td>
+  <td>{{ lineform.expiry_date }}{{ lineform.expiry_date.errors }}</td>
+  <td>{% if lineform.instance.pk %}<label class="muted-text">{{ lineform.DELETE }} drop</label>{% endif %}</td>
+</tr>

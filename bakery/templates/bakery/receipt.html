@@ -1,0 +1,89 @@
+{% extends "bakery/base.html" %}
+{% load static %}
+{% block body_class %}receipt-page{% endblock %}
+{% block title %}Receipt {{ bill.bill_number }}{% endblock %}
+{% block heading %}Bill{% endblock %}
+{% block subheading %}{{ bill.bill_number }} &middot; {{ bill.created_at|date:"d-m-Y H:i" }}{% endblock %}
+{% block head_actions %}
+<a class="btn btn-primary" href="{% url 'bakery:receipt_pdf' bill.pk %}">Download PDF</a>
+<button class="btn btn-ghost" type="button" onclick="window.print()">Print Bill</button>
+<a class="btn btn-ghost" href="{% url 'bakery:browse' %}">New Bill</a>
+<a class="btn btn-ghost" href="{% url 'bakery:bills' %}">All Bills</a>
+{% endblock %}
+
+{% block content %}
+<section class="receipt">
+  <header class="rhead">
+    <div class="rletterhead">
+      <img class="brand-logo print" src="{% static 'bakery/img/logo.png' %}?v=2" alt="Warana Milk" width="700" height="350">
+      <div class="rbrand">
+        <h1>Warana Milk</h1>
+        <p class="rcompany">Main Road, Warana, Maharashtra</p>
+        <p class="rcompany">Phone: 98765 43210</p>
+        <p class="rinvoice-label">TAX INVOICE</p>
+      </div>
+    </div>
+    <div class="rmeta rbill-meta">
+      <p><span>Bill No</span><strong>{{ bill.bill_number }}</strong></p>
+      <p><span>Date</span><strong>{{ bill.created_at|date:"d-m-Y H:i" }}</strong></p>
+      <p><span>Cashier</span><strong>{% if bill.cashier %}{{ bill.cashier.get_full_name|default:bill.cashier.username }}{% else %}-{% endif %}</strong></p>
+    </div>
+  </header>
+
+  <div class="rcustomer">
+    <div class="rcustomer-info">
+      <span class="rsection-label">Billed To</span>
+      <strong>{{ bill.customer.name|default:"Walk-in Customer" }}</strong>
+      {% if bill.customer.phone %}<span>Phone: {{ bill.customer.phone }}</span>{% endif %}
+      {% if bill.customer.email %}<span>Email: {{ bill.customer.email }}</span>{% endif %}
+      {% if bill.customer.address %}<span>Address: {{ bill.customer.address }}</span>{% endif %}
+    </div>
+    <div class="rstatus">
+      <span class="rsection-label">Payment Status</span>
+      <span class="pill {% if bill.status == 'PAID' %}ok{% elif bill.status == 'CANCELLED' %}danger{% else %}warn{% endif %}">{{ bill.get_status_display|upper }}</span>
+    </div>
+  </div>
+
+  <table class="table rtable">
+    <thead><tr><th>#</th><th>Product Name</th><th class="right">Quantity</th><th class="right">Rate</th><th class="right">GST / Tax</th><th class="right">Amount</th></tr></thead>
+    <tbody>
+      {% for i in bill.items.all %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td><strong>{{ i.product_name }}</strong></td>
+        <td class="right">{{ i.quantity }}</td>
+        <td class="right nowrap">&#8377;{{ i.unit_price|floatformat:2 }}</td>
+        <td class="right">{{ i.tax_rate|floatformat:0 }}%<small class="muted-text block">&#8377;{{ i.tax_amount|floatformat:2 }}</small></td>
+        <td class="right">&#8377;{{ i.line_total|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="rgrid">
+    <div class="rtotals">
+      <p><span>Subtotal</span><span>&#8377;{{ bill.subtotal|floatformat:2 }}</span></p>
+      <p><span>Discount</span><span>&minus;&#8377;{{ bill.discount|floatformat:2 }}</span></p>
+      <p><span>Tax ({{ bill.tax_rate|floatformat:0 }}%)</span><span>&#8377;{{ bill.tax_amount|floatformat:2 }}</span></p>
+      <p class="grand"><span>Grand Total</span><span>&#8377;{{ bill.total|floatformat:2 }}</span></p>
+    </div>
+    <div class="rpay">
+      <p class="muted-text">Payment Details</p>
+      <p><strong>Status:</strong> {{ bill.get_status_display }}</p>
+      <p class="pay-method">{% if bill.payment.method == 'CASH' %}<span class="pay-ico">&#128176;</span>{% elif bill.payment.method == 'CARD' %}<span class="pay-ico">&#128179;</span>{% else %}<span class="pay-ico">&#128241;</span>{% endif %}{{ bill.payment.get_method_display|default:"-" }}</p>
+      {% if bill.payment.reference %}<p class="muted-text">Ref: {{ bill.payment.reference }}</p>{% endif %}
+      <p class="muted-text">Paid at {{ bill.payment.paid_at|date:"d-m-Y H:i" }}</p>
+    </div>
+  </div>
+
+  <footer class="rfoot">
+    <p>Thank you for shopping at Warana Milk. Please visit again!</p>
+    <p class="muted-text">This is a computer generated receipt.</p>
+    <div class="rauthorised">
+      <span>For Warana Milk</span>
+      <span class="rsign-line"></span>
+      <strong>Authorised Signatory</strong>
+    </div>
+  </footer>
+</section>
+{% endblock %}

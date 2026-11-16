@@ -1,0 +1,47 @@
+{% extends "bakery/base.html" %}
+{% block title %}Bills{% endblock %}
+{% block nav_bills %}active{% endblock %}
+{% block heading %}Billing History{% endblock %}
+{% block subheading %}Every bill raised at the counter{% endblock %}
+{% block head_actions %}
+<a class="btn btn-ghost" href="{% url 'bakery:bills_csv' %}{% if q %}?q={{ q|urlencode }}{% endif %}">Download CSV</a>
+<button class="btn btn-primary" type="button" onclick="window.print()">Print</button>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <form method="get" class="filter-row">
+    <input class="input" name="q" value="{{ q }}" placeholder="Bill number or customer">
+    <button class="btn btn-primary" type="submit">Search</button>
+    <a class="btn btn-ghost" href="{% url 'bakery:bills' %}">Reset</a>
+  </form>
+</section>
+
+
+<section class="card">
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th>Bill No</th><th>Date</th><th>Customer</th><th class="right">Items</th><th>Payment</th><th>Status</th><th class="right">Total</th><th class="right"></th></tr></thead>
+      <tbody>
+      {% for b in bills %}
+      <tr>
+        <td><strong>{{ b.bill_number }}</strong></td>
+        <td>{{ b.created_at|date:"d-m-Y H:i" }}</td>
+        <td>{{ b.customer.name|default:"Walk-in" }}</td>
+        <td class="right">{{ b.units }}</td>
+        <td><span class="chip">{{ b.payment.get_method_display|default:"-" }}</span></td>
+        <td><span class="pill {% if b.status == 'PAID' %}ok{% else %}warn{% endif %}">{{ b.get_status_display }}</span></td>
+        <td class="right">&#8377;{{ b.total|floatformat:2 }}</td>
+        <td class="right nowrap">
+          <a class="link" href="{% url 'bakery:receipt' b.pk %}">receipt</a>
+          <a class="link" href="{% url 'bakery:receipt_pdf' b.pk %}">pdf</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="empty">No bills found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

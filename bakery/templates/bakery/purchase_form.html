@@ -1,0 +1,120 @@
+{% extends "bakery/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block nav_purchases %}active{% endblock %}
+{% block nav_suppliers %}active{% endblock %}
+{% block heading %}{{ title }}{% endblock %}
+{% block subheading %}Supplier, invoice number and the items received{% endblock %}
+
+{% block content %}
+<section class="card">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.as_p }}
+
+    <div class="card-head">
+      <h2>Items Received</h2>
+      <button class="btn tiny-btn" type="button" id="add-line">+ Add line</button>
+    </div>
+
+    {{ formset.management_form }}
+    {{ formset.non_form_errors }}
+    <div class="table-scroll">
+      <table class="table" id="lines">
+        <thead><tr><th>Product</th><th>Qty</th><th>Unit Cost</th><th>Tax %</th><th>Expiry</th><th>Drop</th></tr></thead>
+        <tbody>
+          {% for line in formset %}{% include "bakery/purchase_line.html" with lineform=line %}{% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="summary-note">
+      Quantity must be 1 or more, unit cost cannot be negative, and a batch expiry date
+      cannot fall before the purchase date. The same product cannot appear on two lines,
+      and an invoice number can only be entered once.
+    </p>
+    <div class="cart-panel-totals" id="purchase-total-summary" aria-live="polite">
+      <p class="summary-line"><span>Subtotal</span><strong>&#8377;<span id="purchase-subtotal">0.00</span></strong></p>
+      <p class="summary-line"><span>GST</span><strong>&#8377;<span id="purchase-tax">0.00</span></strong></p>
+      <p class="summary-line cart-grand"><span>Total Amount</span><strong>&#8377;<span id="purchase-total">0.00</span></strong></p>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Save Purchase</button>
+      <a class="btn btn-ghost" href="{% url 'bakery:purchases' %}">Cancel</a>
+    </div>
+  </form>
+</section>
+
+<template id="line-template">{% include "bakery/purchase_line.html" with lineform=formset.empty_form %}</template>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var body = document.querySelector("#lines tbody");
+    var tpl = document.getElementById("line-template");
+    var addBtn = document.getElementById("add-line");
+    var total = document.querySelector('[name="{{ formset.prefix }}-TOTAL_FORMS"]');
+    if (!body || !tpl || !addBtn || !total) return;
+
+    function roundMoney(value) {
+      return Math.round((value + Number.EPSILON) * 100) / 100;
+    }
+
+    function updateTotals() {
+      var subtotal = 0;
+      var taxTotal = 0;
+      body.querySelectorAll(".line-row").forEach(function (row) {
+        var product = row.querySelector('select[name$="-product"]');
+        var deleted = row.querySelector('input[name$="-DELETE"]');
+        if (!product || !product.value || (deleted && deleted.checked)) return;
+
+        var quantity = parseInt((row.querySelector('input[name$="-quantity"]') || {}).value, 10);
+        var cost = parseFloat((row.querySelector('input[name$="-unit_cost"]') || {}).value);
+        var rate = parseFloat((row.querySelector('input[name$="-tax_rate"]') || {}).value);
+        if (!Number.isFinite(quantity) || quantity < 1 || !Number.isFinite(cost) || cost < 0) return;
+        if (!Number.isFinite(rate) || rate < 0) rate = 0;
+
+        var lineTotal = roundMoney(quantity * cost);
+        subtotal = roundMoney(subtotal + lineTotal);
+        taxTotal = roundMoney(taxTotal + roundMoney(lineTotal * rate / 100));
+      });
+
+      document.getElementById("purchase-subtotal").textContent = subtotal.toFixed(2);
+      document.getElementById("purchase-tax").textContent = taxTotal.toFixed(2);
+      document.getElementById("purchase-total").textContent =
+        roundMoney(subtotal + taxTotal).toFixed(2);
+    }
+
+    addBtn.addEventListener("click", function () {
+      var index = parseInt(total.value, 10);
+      if (isNaN(index)) return;
+      var holder = document.createElement("tbody");
+      holder.innerHTML = tpl.innerHTML.split("__prefix__").join(String(index));
+      var row = holder.firstElementChild;
+      if (row) {
+        body.appendChild(row);
+        total.value = index + 1;
+        updateTotals();
+      }
+    });
+
+    body.addEventListener("change", function (event) {
+      var select = event.target.closest('select[name$="-product"]');
+      if (select) {
+        var row = select.closest("tr");
+        var tax = row && row.querySelector('input[name$="-tax_rate"]');
+        if (tax) {
+          var map = {};
+          try { map = JSON.parse(select.getAttribute("data-tax-map") || "{}"); }
+          catch (err) { map = {}; }
+          if (map[select.value] !== undefined) tax.value = map[select.value];
+        }
+      }
+      updateTotals();
+    });
+    body.addEventListener("input", updateTotals);
+    updateTotals();
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "bakery/base.html" %}
+{% load bakery_tags %}
+{% block title %}Purchase {{ purchase.reference }}{% endblock %}
+{% block nav_purchases %}active{% endblock %}
+{% block nav_suppliers %}active{% endblock %}
+{% block heading %}Purchase {{ purchase.reference }}{% endblock %}
+{% block subheading %}{{ purchase.supplier.name }} &middot; {{ purchase.purchase_date|date:"d M Y" }}{% endblock %}
+{% block head_actions %}
+<a class="btn btn-ghost" href="{% url 'bakery:purchase_edit' purchase.pk %}">Edit</a>
+<a class="btn btn-primary" href="{% url 'bakery:purchases' %}">Back to Purchases</a>
+{% endblock %}
+
+{% block content %}
+<div class="split">
+  <section class="card">
+    <div class="table-scroll">
+      <table class="table">
+        <thead><tr><th>Product</th><th class="right">Qty</th><th class="right">Unit Cost</th><th class="right">GST</th><th>Expiry</th><th class="right">Amount (incl. GST)</th></tr></thead>
+        <tbody>
+          {% for i in purchase.items.all %}
+          <tr>
+            <td>
+              <div class="name-cell">
+                {% include "bakery/_product_art.html" with product=i.product size="sm" %}
+                <span class="nm"><strong>{{ i.product.name }}</strong></span>
+              </div>
+            </td>
+            <td class="right">{{ i.quantity }} {{ i.product.get_unit_display }}</td>
+            <td class="right">&#8377;{{ i.unit_cost|floatformat:2 }}</td>
+            <td class="right">{{ i.tax_rate|floatformat:2 }}%</td>
+            <td>{% if i.expiry_date %}{{ i.expiry_date|date:"d M Y" }}{% else %}<span class="muted-text">&mdash;</span>{% endif %}</td>
+            <td class="right">&#8377;{{ i.line_total_with_tax|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="empty">This purchase has no lines.</td></tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr><th colspan="5" class="right">Subtotal</th><th class="right">&#8377;{{ purchase.subtotal|floatformat:2 }}</th></tr>
+          <tr><th colspan="5" class="right">Tax</th><th class="right">&#8377;{{ purchase.tax_amount|floatformat:2 }}</th></tr>
+          <tr class="grand"><th colspan="5" class="right">Total</th><th class="right">&#8377;{{ purchase.total|floatformat:2 }}</th></tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Supplier</h2>
+    <p><strong>{{ purchase.supplier.name }}</strong></p>
+    {% if purchase.supplier.contact_person %}<p class="muted-text">{{ purchase.supplier.contact_person }}</p>{% endif %}
+    <p class="muted-text">Phone: {{ purchase.supplier.phone }}</p>
+    {% if purchase.supplier.gst_number %}<p class="muted-text">GST: {{ purchase.supplier.gst_number }}</p>{% endif %}
+    {% if purchase.supplier.address %}<p class="muted-text">{{ purchase.supplier.address|linebreaksbr }}</p>{% endif %}
+
+    <h2 class="mt">Voucher</h2>
+    <p class="summary-line"><span>Invoice number</span><strong>{{ purchase.reference }}</strong></p>
+    <p class="summary-line"><span>Purchase date</span><strong>{{ purchase.purchase_date|date:"d M Y" }}</strong></p>
+    <p class="summary-line"><span>Units received</span><strong>{{ purchase.unit_count }}</strong></p>
+    <p class="summary-line"><span>Status</span><strong>{{ purchase.get_status_display }}</strong></p>
+    {% if purchase.created_by %}<p class="summary-line"><span>Entered by</span><strong>{{ purchase.created_by.username }}</strong></p>{% endif %}
+    {% if purchase.notes %}<p class="summary-note">{{ purchase.notes|linebreaksbr }}</p>{% endif %}
+
+    <form method="post" action="{% url 'bakery:purchase_delete' purchase.pk %}" onsubmit="return confirm('Remove this purchase? The stock will be taken back out.')" class="mt">
+      {% csrf_token %}
+      <button class="btn btn-ghost danger-text" type="submit">Remove purchase</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

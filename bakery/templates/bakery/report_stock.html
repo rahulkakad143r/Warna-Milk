@@ -1,0 +1,81 @@
+{% extends "bakery/base.html" %}
+{% block title %}Stock Report{% endblock %}
+{% block nav_reports %}active{% endblock %}
+{% block heading %}Stock Report{% endblock %}
+{% block subheading %}Product ID, product name, stock and rate / unit{% endblock %}
+{% block head_actions %}
+<a class="btn btn-primary" href="{% url 'bakery:report_stock_pdf' %}?{{ request.GET.urlencode }}">Download PDF</a>
+<a class="btn btn-ghost" href="{% url 'bakery:report_stock_csv' %}?{{ request.GET.urlencode }}">Download CSV</a>
+{% endblock %}
+
+{% block content %}
+{% include "bakery/_report_tabs.html" with active="stock" %}
+
+<div class="stat-grid">
+  <div class="stat">
+    <span class="stat-ico">&#128230;</span>
+    <span class="stat-label">Units in Stock</span>
+    <span class="stat-value">{{ total_units }}</span>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#128176;</span>
+    <span class="stat-label">Stock Value</span>
+    <span class="stat-value">&#8377;{{ stock_value|floatformat:2 }}</span>
+  </div>
+  <div class="stat{% if low_count %} is-alert{% endif %}">
+    <span class="stat-ico">&#9888;</span>
+    <span class="stat-label">Low Stock</span>
+    <span class="stat-value">{{ low_count }}</span>
+  </div>
+  <div class="stat{% if out_count %} is-alert{% endif %}">
+    <span class="stat-ico">&#10060;</span>
+    <span class="stat-label">Out of Stock</span>
+    <span class="stat-value">{{ out_count }}</span>
+  </div>
+</div>
+
+<section class="card">
+  <form method="get" class="filter-row">
+    <input class="input" name="q" value="{{ q }}" placeholder="Search product or category">
+    <select class="input" name="category">
+      <option value="">All categories</option>
+      {% for c in categories %}<option value="{{ c.pk }}" {% if selected_category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+    <select class="input" name="status">
+      <option value="">Any status</option>
+      <option value="ok" {% if selected_status == "ok" %}selected{% endif %}>In stock</option>
+      <option value="low" {% if selected_status == "low" %}selected{% endif %}>Low stock</option>
+      <option value="out" {% if selected_status == "out" %}selected{% endif %}>Out of stock</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Filter</button>
+    <a class="btn btn-ghost" href="{% url 'bakery:report_stock' %}">Reset</a>
+  </form>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Stock Report</h2>
+    <span class="muted-text">Low stock at {{ low_stock_threshold }} units or fewer</span>
+  </div>
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th>ID</th><th>Product Name</th><th>Category</th><th class="right">Stock</th><th class="right">Rate / Unit</th><th class="right">Stock Value</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for inv in rows %}
+      <tr>
+        <td class="nowrap"><span class="pill">#{{ inv.product.pk }}</span></td>
+        <td><strong>{{ inv.product.name }}</strong></td>
+        <td>{{ inv.product.category.name }}</td>
+        <td class="right">{{ inv.quantity }}</td>
+        <td class="right nowrap">&#8377;{{ inv.product.price|floatformat:2 }} <small class="muted-text">/ {{ inv.product.get_unit_display }}</small></td>
+        <td class="right">&#8377;{{ inv.stock_value|floatformat:2 }}</td>
+        <td><span class="pill {% if inv.is_out %}danger{% elif inv.is_low %}warn{% else %}ok{% endif %}">{{ inv.stock_status_label|upper }}</span></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="empty">No stock records found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

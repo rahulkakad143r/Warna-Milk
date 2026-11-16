@@ -1,0 +1,111 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dashboard{% endblock %} &middot; Warana Milk &middot; Inventory &amp; Billing System</title>
+  <link rel="stylesheet" href="{% static 'bakery/css/style.css' %}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% if user.is_authenticated %}
+<button class="nav-toggle" type="button" data-nav-toggle aria-label="Toggle navigation">&#9776;</button>
+<div class="scrim" data-nav-toggle hidden></div>
+
+<aside class="sidebar" id="sidebar">
+  <a class="brand" href="{% url 'bakery:dashboard' %}">
+    <img class="brand-logo" src="{% static 'bakery/img/logo.png' %}?v=2" alt="Warana Milk" width="700" height="350">
+  </a>
+
+  <nav class="nav">
+    <p class="nav-label">Overview</p>
+    <a href="{% url 'bakery:dashboard' %}" class="{% block nav_dashboard %}{% endblock %}">
+      <img class="nav-ico-logo" src="{% static 'bakery/img/logo.png' %}?v=2" alt="" width="700" height="350"> Dashboard
+    </a>
+
+    <p class="nav-label">Billing</p>
+    <a href="{% url 'bakery:browse' %}" class="{% block nav_browse %}{% endblock %}">
+      <span class="nav-ico">&#128722;</span> New Sale
+    </a>
+    <a href="{% url 'bakery:cart' %}" class="{% block nav_cart %}{% endblock %}">
+      <span class="nav-ico">&#128722;</span> Cart
+      <span class="badge{% if not nav_cart_count %} is-zero{% endif %}" id="cart-badge">{{ nav_cart_count|default:0 }}</span>
+    </a>
+    <a href="{% url 'bakery:bills' %}" class="{% block nav_bills %}{% endblock %}">
+      <span class="nav-ico">&#129534;</span> Bills
+    </a>
+
+    <p class="nav-label">Master</p>
+    <a href="{% url 'bakery:products' %}" class="{% block nav_products %}{% endblock %}">
+      <span class="nav-ico">&#127978;</span> Products
+    </a>
+    <a href="{% url 'bakery:inventory' %}" class="{% block nav_inventory %}{% endblock %}">
+      <span class="nav-ico">&#128230;</span> Inventory
+    </a>
+    <a href="{% url 'bakery:suppliers' %}" class="{% block nav_suppliers %}{% endblock %}">
+      <span class="nav-ico">&#129300;</span> Suppliers
+    </a>
+    <a href="{% url 'bakery:purchases' %}" class="{% block nav_purchases %}{% endblock %}">
+      <span class="nav-ico">&#128230;</span> Purchases
+    </a>
+
+    <p class="nav-label">Insights</p>
+    <a href="{% url 'bakery:reports' %}" class="{% block nav_reports %}{% endblock %}">
+      <span class="nav-ico">&#128200;</span> Reports
+    </a>
+  </nav>
+
+  <div class="side-cart">
+    <p class="nav-label">Current Cart</p>
+    <p class="side-cart-line"><span>Items</span><strong id="cart-count">{{ nav_cart_count|default:0 }}</strong></p>
+    <p class="side-cart-line"><span>Subtotal</span><strong id="cart-total">&#8377;{{ nav_cart_total|default:"0.00" }}</strong></p>
+    <p class="side-cart-line"><span>GST</span><strong id="cart-tax">&#8377;{{ nav_cart_tax|default:"0.00" }}</strong></p>
+    <p class="side-cart-line"><span>Total</span><strong id="cart-grand-total">&#8377;{{ nav_cart_grand_total|default:"0.00" }}</strong></p>
+    <a class="btn btn-primary block" href="{% url 'bakery:checkout' %}">Checkout</a>
+  </div>
+
+  <div class="side-user">
+    <span class="avatar">{{ user.username|first|upper }}</span>
+    <span class="who">
+      <strong>{{ user.get_full_name|default:user.username }}</strong>
+      <em>{% if user.is_staff %}Manager{% else %}Cashier{% endif %}</em>
+    </span>
+    <form class="logout-form" method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button class="btn btn-ghost" type="submit">Logout</button>
+    </form>
+  </div>
+</aside>
+{% endif %}
+
+<main class="main">
+  {% if user.is_authenticated %}
+    <img class="page-band" src="{% static 'bakery/img/page-band.png' %}?v=2" alt="" width="1536" height="153">
+  {% endif %}
+
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">{% block heading %}{% endblock %}</h1>
+      <p class="page-sub">{% block subheading %}{% endblock %}</p>
+      <p class="page-clock" data-clock>
+        <span class="page-clock-ico" aria-hidden="true">&#128197;</span>
+        <span data-clock-date>{% now "D, d M Y" %}</span>
+        <strong data-clock-time>{% now "H:i:s" %}</strong>
+      </p>
+    </div>
+    <div class="page-head-actions">{% block head_actions %}{% endblock %}</div>
+  </header>
+
+  {% if messages %}
+    <div class="messages">
+      {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+    </div>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="foot">Warana Milk &middot; Inventory &amp; Billing System</footer>
+<script src="{% static 'bakery/js/app.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

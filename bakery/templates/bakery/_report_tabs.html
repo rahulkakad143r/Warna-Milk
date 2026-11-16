@@ -1,0 +1,7 @@
+<nav class="filter-row report-tabs" aria-label="Report types">
+  <a class="btn {% if active == 'sales' %}btn-primary{% else %}btn-ghost{% endif %}" href="{% url 'bakery:reports' %}">Date-wise Sales</a>
+  <a class="btn {% if active == 'customers' %}btn-primary{% else %}btn-ghost{% endif %}" href="{% url 'bakery:report_customers' %}">Customer Report</a>
+  <a class="btn {% if active == 'products' %}btn-primary{% else %}btn-ghost{% endif %}" href="{% url 'bakery:report_products' %}">Product Report</a>
+  <a class="btn {% if active == 'stock' %}btn-primary{% else %}btn-ghost{% endif %}" href="{% url 'bakery:report_stock' %}">Stock Report</a>
+  <a class="btn {% if active == 'bills' %}btn-primary{% else %}btn-ghost{% endif %}" href="{% url 'bakery:report_bills' %}">Bill Report</a>
+</nav>

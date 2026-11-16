@@ -1,0 +1,61 @@
+{% extends "bakery/base.html" %}
+{% block title %}Customer Report{% endblock %}
+{% block nav_reports %}active{% endblock %}
+{% block heading %}Customer Report{% endblock %}
+{% block subheading %}Who buys, how often and how much{% endblock %}
+{% block head_actions %}
+<a class="btn btn-primary" href="{% url 'bakery:report_customers_pdf' %}?{{ request.GET.urlencode }}">Download PDF</a>
+<a class="btn btn-ghost" href="{% url 'bakery:report_customers_csv' %}?{{ request.GET.urlencode }}">Download CSV</a>
+{% endblock %}
+
+{% block content %}
+{% include "bakery/_report_tabs.html" with active="customers" %}
+
+<div class="stat-grid">
+  <div class="stat">
+    <span class="stat-ico">&#128101;</span>
+    <span class="stat-label">Customers</span>
+    <span class="stat-value">{{ total_customers }}</span>
+  </div>
+  <div class="stat">
+    <span class="stat-ico">&#128176;</span>
+    <span class="stat-label">Total Customer Spend</span>
+    <span class="stat-value">&#8377;{{ total_spend|floatformat:2 }}</span>
+  </div>
+</div>
+
+<section class="card">
+  <form method="get" class="filter-row">
+    <input class="input" name="q" value="{{ q }}" placeholder="Search name, phone or email">
+    <button class="btn btn-primary" type="submit">Search</button>
+    <a class="btn btn-ghost" href="{% url 'bakery:report_customers' %}">Reset</a>
+  </form>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Customer Report</h2>
+    <span class="muted-text">Paid bills only</span>
+  </div>
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th>Customer ID</th><th>Customer</th><th>Phone</th><th>Email</th><th class="right">Bills</th><th class="right">Total Spent</th><th>Last Purchase</th></tr></thead>
+      <tbody>
+      {% for c in rows %}
+      <tr>
+        <td class="nowrap"><span class="pill">#{{ c.pk }}</span></td>
+        <td><strong>{{ c.name }}</strong>{% if c.address %}<small class="muted-text block">{{ c.address|truncatechars:50 }}</small>{% endif %}</td>
+        <td class="nowrap">{{ c.phone }}</td>
+        <td>{{ c.email|default:"&mdash;" }}</td>
+        <td class="right">{{ c.bill_count }}</td>
+        <td class="right">&#8377;{{ c.spend|floatformat:2 }}</td>
+        <td>{{ c.last_bill|date:"d-m-Y H:i"|default:"&mdash;" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="empty">No customers found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

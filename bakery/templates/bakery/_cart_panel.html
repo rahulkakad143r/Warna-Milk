@@ -1,0 +1,50 @@
+<section class="card cart-panel" id="cart-panel">
+  <div class="card-head">
+    <h2>Current Cart</h2>
+    <span class="pill">{{ cart.item_count }} unit{{ cart.item_count|pluralize }}</span>
+  </div>
+
+  <div class="cart-panel-items">
+    {% for i in cart.items %}
+    <div class="cart-panel-item">
+      <div class="cart-panel-main">
+        <strong>{{ i.product.name }}</strong>
+        <small class="muted-text">
+          &#8377;{{ i.product.price|floatformat:2 }} &middot; GST {{ i.tax_rate|floatformat:0 }}%
+        </small>
+        <div class="cart-panel-qty">
+          <form method="post" action="{% url 'bakery:cart_update' i.pk %}" class="inline-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input class="input tiny" type="number" name="quantity" min="0"
+                   max="{{ i.product.stock }}" value="{{ i.quantity }}"
+                   aria-label="Quantity for {{ i.product.name }}">
+            <button class="btn tiny-btn" type="submit">Update</button>
+          </form>
+          <form method="post" action="{% url 'bakery:cart_remove' i.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="link danger-text" type="submit">Remove</button>
+          </form>
+        </div>
+      </div>
+      <div class="cart-panel-side">
+        <strong>&#8377;{{ i.line_total_with_tax|floatformat:2 }}</strong>
+        <small class="muted-text">incl. &#8377;{{ i.line_tax|floatformat:2 }} GST</small>
+      </div>
+    </div>
+    {% empty %}
+    <p class="empty">Your cart is empty. <a href="{% url 'bakery:browse' %}">Browse products</a>.</p>
+    {% endfor %}
+  </div>
+
+  {% if cart.items %}
+  <div class="cart-panel-totals">
+    <p class="summary-line"><span>Subtotal</span><strong>&#8377;{{ cart.subtotal|floatformat:2 }}</strong></p>
+    <p class="summary-line"><span>GST</span><strong>&#8377;{{ cart.tax_amount|floatformat:2 }}</strong></p>
+    <p class="summary-line cart-grand"><span>Total</span><strong>&#8377;{{ cart.total|floatformat:2 }}</strong></p>
+  </div>
+  <a class="btn btn-primary block" href="{% url 'bakery:checkout' %}">Proceed to Checkout</a>
+  <a class="btn btn-ghost block mt-s" href="{% url 'bakery:browse' %}">Continue shopping</a>
+  {% endif %}
+</section>

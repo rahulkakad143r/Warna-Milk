@@ -1,0 +1,23 @@
+{% load bakery_tags %}
+{% comment %}
+Shared product artwork, used on all six product pages so the look never changes.
+
+Resolution order:
+  1. product.image       — uploaded photo (media/products/...)
+  2. product.image_url   — remote URL
+  3. themed tile         — category glyph on a warm gradient
+
+Usage:
+  {% include "bakery/_product_art.html" with product=p %}            large hero tile
+  {% include "bakery/_product_art.html" with product=p size="sm" %}  40px thumbnail
+  {% include "bakery/_product_art.html" with product=p size="xs" %}  30px thumbnail
+{% endcomment %}
+<span class="art art-{{ size|default:'lg' }} tint-{{ product|product_tint }}" aria-hidden="true">
+  {% if product.image %}
+    <img src="{{ product.image.url }}" alt="" loading="lazy">
+  {% elif product.image_url %}
+    <img src="{{ product.image_url }}" alt="" loading="lazy">
+  {% else %}
+    <span class="glyph glyph-{{ size|default:'lg' }}">{{ product|product_glyph }}</span>
+  {% endif %}
+</span>

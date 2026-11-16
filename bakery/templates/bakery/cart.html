@@ -1,0 +1,65 @@
+{% extends "bakery/base.html" %}
+{% block title %}Cart{% endblock %}
+{% block nav_cart %}active{% endblock %}
+{% block nav_browse %}active{% endblock %}
+{% block heading %}Cart{% endblock %}
+{% block subheading %}Review items before checkout{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="card-head"><h2>Items</h2><span class="pill">{{ cart.item_count }} unit{{ cart.item_count|pluralize }}</span></div>
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th>Item</th><th class="right">Price</th><th class="right">GST</th><th class="right">Quantity</th><th class="right">Line Total</th><th class="right"></th></tr></thead>
+      <tbody>
+        {% for i in cart.items %}
+        <tr>
+          <td>
+            <div class="name-cell">
+              {% include "bakery/_product_art.html" with product=i.product size="sm" %}
+              <span class="nm">
+                <strong>{{ i.product.name }}</strong>
+                <small class="muted-text">{{ i.product.category.name }}</small>
+              </span>
+            </div>
+          </td>
+          <td class="right">&#8377;{{ i.product.price|floatformat:2 }}</td>
+          <td class="right">
+            {{ i.tax_rate|floatformat:0 }}%
+            <small class="muted-text block">&#8377;{{ i.line_tax|floatformat:2 }}</small>
+          </td>
+          <td class="right">
+            <form method="post" action="{% url 'bakery:cart_update' i.pk %}" class="inline-form">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <input class="input tiny" type="number" name="quantity" min="0" max="{{ i.product.stock }}" value="{{ i.quantity }}" aria-label="Quantity">
+              <button class="btn tiny-btn" type="submit">Update</button>
+            </form>
+          </td>
+          <td class="right">&#8377;{{ i.line_total|floatformat:2 }}</td>
+          <td class="right">
+            <form method="post" action="{% url 'bakery:cart_remove' i.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button class="link danger-text" type="submit">Remove</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty">Your cart is empty. <a href="{% url 'bakery:browse' %}">Browse products</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+      {% if cart.items %}
+      <tfoot>
+        <tr><th colspan="4" class="right">Subtotal</th><th class="right">&#8377;{{ cart.subtotal|floatformat:2 }}</th><th></th></tr>
+        <tr><th colspan="4" class="right">GST</th><th class="right">&#8377;{{ cart.tax_amount|floatformat:2 }}</th><th></th></tr>
+        <tr class="grand"><th colspan="4" class="right">Total</th><th class="right">&#8377;{{ cart.total|floatformat:2 }}</th><th></th></tr>
+      </tfoot>
+      {% endif %}
+    </table>
+  </div>
+  {% if cart.items %}
+  <a class="btn btn-primary block" href="{% url 'bakery:checkout' %}">Proceed to Checkout</a>
+  {% endif %}
+</section>
+{% endblock %}

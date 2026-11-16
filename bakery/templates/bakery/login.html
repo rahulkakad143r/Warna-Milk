@@ -1,0 +1,299 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Warana | Bakery Inventory &amp; Billing System</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'bakery/css/login.css' %}">
+</head>
+
+<body>
+<div class="page">
+
+    <!-- ================= HEADER ================= -->
+    <header class="header">
+
+        <div class="logo-area">
+
+            <div class="logo">
+                <img src="{% static 'bakery/img/logo.png' %}?v=2" alt="Warana Milk">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="title">
+                <h2>Bakery Inventory &amp; Billing System</h2>
+                <h3>(Warana)</h3>
+            </div>
+
+        </div>
+
+        <p class="login-clock" data-clock>
+            <i class="fa-regular fa-calendar-days"></i>
+            <span data-clock-date>{% now "D, d M Y" %}</span>
+            <strong data-clock-time>{% now "H:i:s" %}</strong>
+        </p>
+
+        <div class="brand-box">
+
+            <div class="bread-icon">
+                <i class="fa-solid fa-bread-slice"></i>
+            </div>
+
+            <div>
+                <h3>Warana</h3>
+                <p>Bakery &bull; Milk &bull; Daily Essentials</p>
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- ================= MAIN ================= -->
+    <main class="main">
+
+        <!-- LEFT BAKERY IMAGE -->
+        <section class="hero">
+
+            <div class="hero-overlay"></div>
+
+            <div class="hero-content">
+
+                <h1>Warana</h1>
+
+                <h2>Freshly Baked, Always for You</h2>
+
+                <div class="yellow-line"></div>
+
+                <p>
+                    Manage your bakery products, inventory, and billing easily
+                    with Warana. Simple, fast and reliable.
+                </p>
+
+            </div>
+
+        </section>
+
+        <!-- LOGIN -->
+        <section class="login-section">
+
+            <div class="login-card">
+
+                <div class="login-logo">
+                    <img src="{% static 'bakery/img/logo.png' %}?v=2" alt="Warana Milk">
+                </div>
+
+                <h2>Warana</h2>
+
+                <p class="subtitle">Bakery Inventory &amp; Billing System</p>
+
+                <div class="gold-icon">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="form-error" role="alert">{{ form.non_field_errors|striptags }}</div>
+                {% endif %}
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="form-{{ message.tags }}" role="status">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" novalidate id="loginForm">
+                    {% csrf_token %}
+
+                    <div class="input-box">
+                        <i class="fa-regular fa-user"></i>
+                        <input type="text" name="username" id="id_username"
+                               placeholder="Username" autocomplete="username"
+                               value="{{ form.username.value|default:'' }}" required>
+                    </div>
+
+                    <div class="input-box">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" name="password" id="id_password"
+                               placeholder="Password" autocomplete="current-password" required>
+                        <i class="fa-regular fa-eye eye" id="eyeIcon"
+                           role="button" tabindex="0"
+                           aria-label="Show password"></i>
+                    </div>
+
+                    <button class="login-btn" type="submit">
+                        Login <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                    <div class="login-options">
+                        <label class="remember">
+                            <input type="checkbox" name="remember" value="1">
+                            <span>Remember me</span>
+                        </label>
+                        <a class="forgot" href="#" id="forgotLink">Forgot Username / Password?</a>
+                    </div>
+
+                    <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+                </form>
+
+                <div class="authorized">
+                    <i class="fa-solid fa-users"></i>
+                    <div>
+                        <strong>For authorized users only.</strong>
+                        <span>Admin, Staff and Cashier can login here.</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= FEATURES ================= -->
+    <section class="features">
+
+        <div class="feature">
+            <div class="feature-icon"><i class="fa-solid fa-box"></i></div>
+            <div>
+                <h4>Real-Time Inventory</h4>
+                <p>Track stock automatically with every sale.</p>
+            </div>
+        </div>
+
+        <div class="feature">
+            <div class="feature-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+            <div>
+                <h4>Easy Product Selection</h4>
+                <p>Quick and simple billing process.</p>
+            </div>
+        </div>
+
+        <div class="feature">
+            <div class="feature-icon"><i class="fa-solid fa-file-invoice"></i></div>
+            <div>
+                <h4>Auto Billing</h4>
+                <p>Generate bill instantly with total amount.</p>
+            </div>
+        </div>
+
+        <div class="feature">
+            <div class="feature-icon"><i class="fa-solid fa-chart-simple"></i></div>
+            <div>
+                <h4>Reports &amp; Insights</h4>
+                <p>Track sales, stock and growth with analytics.</p>
+            </div>
+        </div>
+
+    </section>
+
+</div>
+
+<!-- ================= RESET PASSWORD POPUP ================= -->
+<div class="popup-backdrop" id="resetPopup" hidden>
+    <div class="popup-card" role="dialog" aria-modal="true" aria-labelledby="resetPopupTitle">
+
+        <button class="popup-close" id="resetPopupClose" type="button"
+                aria-label="Close">&times;</button>
+
+        <div class="popup-icon"><i class="fa-solid fa-key"></i></div>
+
+        <!-- STEP 1: check the username against the database -->
+        <div id="resetStep1">
+            <span class="step-badge">Step 1 of 2</span>
+
+            <h3 id="resetPopupTitle">Check Username</h3>
+            <p class="popup-sub">Enter your username to check it in the database.</p>
+
+            <form method="post" action="{% url 'bakery:check_username' %}"
+                  novalidate id="resetCheckForm">
+                {% csrf_token %}
+
+                <div class="input-box">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" name="username" id="reset_username"
+                           placeholder="Username" autocomplete="username" required>
+                </div>
+
+                <div class="form-error" id="checkError" role="alert" hidden></div>
+
+                <button class="login-btn" type="submit" id="checkSubmit">
+                    Check Username <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- STEP 2: change username / password, then save to the database -->
+        <div id="resetStep2" hidden>
+            <span class="step-badge">Step 2 of 2</span>
+
+            <h3>Change Username &amp; Password</h3>
+            <p class="popup-sub" id="verifiedNote">Username verified in the database.</p>
+
+            <form method="post" action="{% url 'bakery:reset_password' %}"
+                  novalidate id="resetForm">
+                {% csrf_token %}
+
+                <input type="hidden" name="username" id="reset_account">
+
+                <div class="input-box">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" name="new_username" id="reset_new_username"
+                           placeholder="New username (blank = keep current)"
+                           autocomplete="username">
+                </div>
+
+                <div class="input-box">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="new_password" id="reset_new_password"
+                           placeholder="New password" autocomplete="new-password" required>
+                </div>
+
+                <div class="input-box">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="confirm_password" id="reset_confirm_password"
+                           placeholder="Re-enter new password" autocomplete="new-password" required>
+                </div>
+
+                <div class="form-error" id="resetError" role="alert" hidden></div>
+
+                <button class="login-btn" type="submit" id="resetSubmit">
+                    Update in Database <i class="fa-solid fa-check"></i>
+                </button>
+
+                <button class="popup-back" type="button" id="resetBackBtn">
+                    <i class="fa-solid fa-arrow-left"></i> Back to username check
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<!-- ================= SUCCESS POPUP ================= -->
+<div class="popup-backdrop" id="successPopup" hidden>
+    <div class="popup-card popup-success" role="dialog" aria-modal="true"
+         aria-labelledby="successPopupTitle">
+
+        <div class="popup-icon popup-icon-ok"><i class="fa-solid fa-circle-check"></i></div>
+
+        <h3 id="successPopupTitle">Updated in Database</h3>
+        <p class="popup-sub" id="successPopupMessage">
+            Your username and password have been updated in the database.
+        </p>
+
+        <button class="login-btn" type="button" id="successLoginBtn">
+            Login <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+    </div>
+</div>
+
+<script src="{% static 'bakery/js/login.js' %}"></script>
+<script src="{% static 'bakery/js/app.js' %}"></script>
+</body>
+</html>
